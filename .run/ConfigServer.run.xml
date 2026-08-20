@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ConfigServer" type="Spring Boot" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.infra.config.ConfigServer" />
+    <module name="config-server" />
+    <option name="WORKING_DIRECTORY" value="./infra/config-server" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

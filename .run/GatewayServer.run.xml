@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GatewayServer" type="Spring Boot" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.infra.gateway.GatewayServer" />
+    <module name="gateway-server" />
+    <option name="WORKING_DIRECTORY" value="./infra/gateway-server" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

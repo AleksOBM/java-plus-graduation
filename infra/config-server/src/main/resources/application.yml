@@ -1,0 +1,42 @@
+server:
+  port: 0
+
+spring:
+  main:
+    banner-mode: off
+    log-startup-info: false
+  jackson:
+    serialization.INDENT_OUTPUT: true
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      discovery:
+        enabled: true
+      server:
+        native:
+          search-locations:
+            - file:../config-repo
+            - file:../config-repo/core
+            - file:../config-repo/infra
+            - file:../config-repo/stat
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: error
