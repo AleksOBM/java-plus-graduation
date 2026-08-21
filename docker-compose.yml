@@ -1,9 +1,9 @@
 services:
   stats-server:
     build:
-      context: ./stat/stat-server
+      context: ./stat/stats-server
       dockerfile: Dockerfile
-    container_name: stat-server
+    container_name: stats-server
     ports:
       - "9090:9090"
     depends_on:
