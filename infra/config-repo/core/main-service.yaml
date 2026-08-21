@@ -4,7 +4,7 @@ spring:
     schema-locations: classpath:schema-postgres.sql
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm-main
+    url: jdbc:postgresql://localhost:6541/ewm-main
     username: dbuser
     password: 12345
   jpa:
