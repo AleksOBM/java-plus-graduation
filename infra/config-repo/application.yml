@@ -1,9 +1,10 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
   main:
     banner-mode: off
     log-startup-info: false
-  jackson:
-    serialization.INDENT_OUTPUT: true
 
 logging:
   level:

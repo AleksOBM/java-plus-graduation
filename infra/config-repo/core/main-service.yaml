@@ -2,6 +2,8 @@ spring:
   sql.init:
     mode: ALWAYS
     schema-locations: classpath:schema-postgres.sql
+  jackson:
+    serialization.INDENT_OUTPUT: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:6541/ewm-main
