@@ -91,7 +91,7 @@ public class StatClient {
 	}
 
 	private ServiceInstance getInstance() {
-		String statsServiceId = "stat-server";
+		String statsServiceId = "stats-server";
 		try {
 			return discoveryClient
 					.getInstances(statsServiceId)

@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="StatServerApp" type="Spring Boot" factoryName="Spring Boot" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="ru.practicum.stat.server.StatServerApp" />
-    <module name="stat-server" />
-    <option name="WORKING_DIRECTORY" value="./stat/stat-server" />
+    <module name="stats-server" />
+    <option name="WORKING_DIRECTORY" value="./stat/stats-server" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
