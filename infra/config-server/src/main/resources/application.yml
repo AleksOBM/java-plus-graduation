@@ -18,10 +18,10 @@ spring:
       server:
         native:
           search-locations:
-            - file:../config-repo
-            - file:../config-repo/core
-            - file:../config-repo/infra
-            - file:../config-repo/stat
+            - file:./infra/config-repo
+            - file:./infra/config-repo/core
+            - file:./infra/config-repo/infra
+            - file:./infra/config-repo/stat
 
 eureka:
   client:
