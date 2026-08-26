@@ -7,6 +7,7 @@ import ru.practicum.aggregation.dto.compilation.NewCompilationDto;
 import ru.practicum.aggregation.dto.user.UserShortDto;
 import ru.practicum.ewm.events.entity.Compilation;
 import ru.practicum.ewm.events.entity.Event;
+import ru.practicum.ewm.events.model.EventData;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -26,9 +27,12 @@ public class CompilationMapper {
 				.events(compilation.getEvents().stream()
 						.map(event -> EventMapper.toEventShortDto(
 								event,
-								eventIdToInitiator.get(event.getId()),
-								confirmedRequests.getOrDefault(event.getId(), 0L),
-								views.getOrDefault(event.getId(), 0L)
+								EventData.builder()
+										.initiator(eventIdToInitiator.get(event.getId()))
+										.confirmedRequests(confirmedRequests
+												.getOrDefault(event.getId(), 0L))
+										.views(views.getOrDefault(event.getId(), 0L))
+										.build()
 						))
 						.toList())
 				.build();

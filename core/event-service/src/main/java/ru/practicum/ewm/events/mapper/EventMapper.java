@@ -7,7 +7,6 @@ import ru.practicum.aggregation.dto.event.request.UpdateEventAdminRequest;
 import ru.practicum.aggregation.dto.event.request.UpdateEventUserRequest;
 import ru.practicum.aggregation.dto.event.response.EventFullDto;
 import ru.practicum.aggregation.dto.event.response.EventShortDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.ewm.events.entity.Category;
 import ru.practicum.ewm.events.entity.Event;
@@ -20,19 +19,17 @@ import java.util.Optional;
 public class EventMapper {
 
 	public EventShortDto toEventShortDto(@NonNull Event event,
-	                                     UserShortDto initiator,
-	                                     long confirmedRequests,
-	                                     long views) {
+	                                     @NonNull EventData eventData) {
 		return EventShortDto.builder()
 				.annotation(event.getAnnotation())
 				.category(CategoryMapper.toDto(event.getCategory()))
-				.confirmedRequests(confirmedRequests)
+				.confirmedRequests(eventData.confirmedRequests())
 				.eventDate(event.getEventDate())
 				.id(event.getId())
-				.initiator(initiator)
+				.initiator(eventData.initiator())
 				.paid(event.isPaid())
 				.title(event.getTitle())
-				.views(views)
+				.views(eventData.views())
 				.rate(event.getRate())
 				.build();
 	}
