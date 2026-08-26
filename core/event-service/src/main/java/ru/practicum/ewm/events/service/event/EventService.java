@@ -1,0 +1,47 @@
+package ru.practicum.ewm.events.service.event;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.aggregation.dto.event.request.*;
+import ru.practicum.aggregation.dto.event.response.EventFullDto;
+import ru.practicum.aggregation.dto.event.response.EventShortDto;
+
+import java.util.List;
+
+@Transactional(readOnly = true)
+public interface EventService {
+
+	/// Получение событий незарегистрированным пользователем с возможностью фильтрации
+	List<EventShortDto> getFreeEvents(FreeGetDto freeGetDto, HttpServletRequest request);
+
+	/**
+	 * Получение незарегистрированным пользователем подробной информации об опубликованном событии
+	 * по его идентификатору
+	 */
+	EventFullDto getFreeEventById(Long eventId, HttpServletRequest request);
+
+	/// Добавление нового события зарегистрированным пользователем
+	@Transactional
+	EventFullDto userAddNewEvent(Long userId, NewEventDto newEventDto);
+
+	/// Поиск событий администратором
+	List<EventFullDto> adminGetEvents(AdminGetDto adminGetDto);
+
+	/// Редактирование администратором данных события и его статуса (отклонение/публикация)
+	@Transactional
+	EventFullDto adminUpdateEvent(Long eventId, UpdateEventAdminRequest request);
+
+	/// Получение событий, добавленных текущим пользователем
+	List<EventShortDto> findByUserId(Long userId, Integer from, Integer size);
+
+	/// Получение полной информации о событии добавленном текущим пользователем
+	EventFullDto findEventByUserIdAndEventId(Long userId, Long eventId);
+
+	/// Получение полной информации о событии по ID
+	EventFullDto findEventById(long eventId);
+
+	/// Изменение события добавленного текущим пользователем
+	@Transactional
+	EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest request);
+	
+}
