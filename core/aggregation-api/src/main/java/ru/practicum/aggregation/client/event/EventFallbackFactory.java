@@ -16,17 +16,17 @@ public class EventFallbackFactory implements FallbackFactory<EventClient> {
 
 			@Override
 			public EventFullDto userFindEventById(Long userId, Long eventId) {
-				throw RemoteExceptionMapper.mapRequestException(cause);
+				throw RemoteExceptionMapper.mapEventException(cause);
 			}
 
 			@Override
 			public void systemUpdateRating(RatingUpdateRequest request) {
-				throw RemoteExceptionMapper.mapRequestException(cause);
+				throw RemoteExceptionMapper.mapEventException(cause);
 			}
 
 			@Override
 			public EventFullDto systemFindEventById(Long eventId) {
-				throw RemoteExceptionMapper.mapRequestException(cause);
+				throw RemoteExceptionMapper.mapEventException(cause);
 			}
 		};
 	}

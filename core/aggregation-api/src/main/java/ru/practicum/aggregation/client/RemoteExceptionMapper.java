@@ -4,11 +4,9 @@ import feign.FeignException;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import ru.practicum.aggregation.error.exception.processing.EventProcessingException;
-import ru.practicum.aggregation.error.exception.processing.RatingProcessingException;
 import ru.practicum.aggregation.error.exception.processing.RequestProcessingException;
 import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
 import ru.practicum.aggregation.error.exception.unavailable.EventServiceUnavailableException;
-import ru.practicum.aggregation.error.exception.unavailable.RatingServiceUnavailableException;
 import ru.practicum.aggregation.error.exception.unavailable.RequestServiceUnavailableException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
 
@@ -43,16 +41,6 @@ public class RemoteExceptionMapper {
 			};
 		}
 		return new RequestServiceUnavailableException(cause);
-	}
-
-	public RuntimeException mapRatingException(@NonNull Throwable cause) {
-		if (cause instanceof FeignException ex) {
-			return switch (ex.status()) {
-				case 400, 404 -> new RatingProcessingException(ex.getMessage());
-				default -> new RatingServiceUnavailableException(ex);
-			};
-		}
-		return new RatingServiceUnavailableException(cause);
 	}
 
 }
