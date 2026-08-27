@@ -3,8 +3,8 @@ package ru.practicum.aggregation.client.user;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 import ru.practicum.aggregation.client.RemoteExceptionMapper;
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 import java.util.List;
 

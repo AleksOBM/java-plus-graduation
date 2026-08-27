@@ -3,10 +3,10 @@ package ru.practicum.aggregation.client.request;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 import ru.practicum.aggregation.client.RemoteExceptionMapper;
-import ru.practicum.aggregation.dto.request.EventRequestCount;
-import ru.practicum.aggregation.dto.request.EventRequestStatusUpdateRequest;
-import ru.practicum.aggregation.dto.request.EventRequestStatusUpdateResult;
-import ru.practicum.aggregation.dto.request.ParticipationRequestDto;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
+import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateRequest;
+import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
+import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.aggregation.enums.ParticipationStatus;
 
 import java.util.List;

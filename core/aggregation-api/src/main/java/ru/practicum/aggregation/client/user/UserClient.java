@@ -4,8 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 import java.util.List;
 

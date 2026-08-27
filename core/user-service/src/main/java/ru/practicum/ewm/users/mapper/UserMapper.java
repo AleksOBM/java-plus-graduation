@@ -2,9 +2,9 @@ package ru.practicum.ewm.users.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.dto.user.NewUserRequest;
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.come.NewUserRequest;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.ewm.users.entity.User;
 
 @UtilityClass
@@ -14,7 +14,6 @@ public class UserMapper {
 		return UserShortDto.builder()
 				.id(user.getId())
 				.name(user.getName())
-				.email(user.getEmail())
 				.build();
 	}
 

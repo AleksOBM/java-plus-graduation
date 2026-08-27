@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 import ru.practicum.aggregation.error.exception.NotFoundException;
 import ru.practicum.ewm.events.entity.Event;
 import ru.practicum.ewm.events.repository.EventRepository;

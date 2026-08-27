@@ -1,8 +1,8 @@
 package ru.practicum.aggregation.repository;
 
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 
 public interface EventFeignRepository {
 

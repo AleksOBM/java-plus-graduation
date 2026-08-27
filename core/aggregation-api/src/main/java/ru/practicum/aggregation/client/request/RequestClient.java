@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.request.EventRequestCount;
-import ru.practicum.aggregation.dto.request.EventRequestStatusUpdateRequest;
-import ru.practicum.aggregation.dto.request.EventRequestStatusUpdateResult;
-import ru.practicum.aggregation.dto.request.ParticipationRequestDto;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
+import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateRequest;
+import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
+import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.aggregation.enums.ParticipationStatus;
 
 import java.util.List;

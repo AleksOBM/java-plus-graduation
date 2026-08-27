@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.aggregation.client.RemoteCallExecutor;
 import ru.practicum.aggregation.client.RemoteCallResult;
 import ru.practicum.aggregation.client.user.UserClient;
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
 

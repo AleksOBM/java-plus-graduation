@@ -12,12 +12,30 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 import ru.practicum.aggregation.enums.EventState;
-import ru.practicum.aggregation.model.BaseEntity;
-import ru.practicum.aggregation.model.Location;
+import ru.practicum.aggregation.model.entity.BaseEntity;
+import ru.practicum.aggregation.model.entity.Location;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * @apiNote
+ * {@link String} annotation<br/>
+ * {@link Category} category<br/>
+ * {@link LocalDateTime} createdOn<br/>
+ * {@link String} description<br/>
+ * {@link LocalDateTime} eventDate<br/>
+ * {@link Long} initiatorId<br/>
+ * {@link Location} location<br/>
+ * <code>boolean</code> paid<br/>
+ * <code>int</code> participantLimit<br/>
+ * {@link LocalDateTime} publishedOn<br/>
+ * <code>boolean</code> requestModeration<br/>
+ * {@link EventState} state<br/>
+ * {@link String} title<br/>
+ * {@link List}<code><</code>{@link Compilation}<code>></code> compilations<br/>
+ * <code>long</code> rate
+ */
 @Getter
 @Setter
 @Entity

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.aggregation.client.RemoteCallExecutor;
 import ru.practicum.aggregation.client.RemoteCallResult;
 import ru.practicum.aggregation.client.event.EventClient;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
 

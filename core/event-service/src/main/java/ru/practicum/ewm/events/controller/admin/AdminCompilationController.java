@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.compilation.CompilationDto;
-import ru.practicum.aggregation.dto.compilation.CompilationUpdateDto;
-import ru.practicum.aggregation.dto.compilation.NewCompilationDto;
+import ru.practicum.aggregation.dto.compilation.output.CompilationDto;
+import ru.practicum.aggregation.dto.compilation.come.update.CompilationUpdateDto;
+import ru.practicum.aggregation.dto.compilation.come.create.NewCompilationDto;
 import ru.practicum.ewm.events.service.compilation.CompilationService;
 
 @RestController

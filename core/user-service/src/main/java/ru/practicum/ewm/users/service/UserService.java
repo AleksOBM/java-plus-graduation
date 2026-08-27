@@ -1,9 +1,9 @@
 package ru.practicum.ewm.users.service;
 
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.aggregation.dto.user.NewUserRequest;
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.come.NewUserRequest;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 import java.util.List;
 

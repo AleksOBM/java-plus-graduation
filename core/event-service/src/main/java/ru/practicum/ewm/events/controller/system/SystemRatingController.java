@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 import ru.practicum.ewm.events.service.rating.RatingService;
 
 @Slf4j

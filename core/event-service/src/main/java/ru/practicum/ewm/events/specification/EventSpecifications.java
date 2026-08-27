@@ -7,7 +7,6 @@ import org.springframework.lang.NonNull;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.ewm.events.entity.Category;
 import ru.practicum.ewm.events.entity.Event;
-import ru.practicum.ewm.events.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -114,8 +113,7 @@ public class EventSpecifications {
 				return null;
 			}
 
-			Join<Event, User> userJoin = root.join("initiator");
-			return userJoin.get("id").in(userIds);
+			return root.get("initiatorId").in(userIds);
 		};
 	}
 

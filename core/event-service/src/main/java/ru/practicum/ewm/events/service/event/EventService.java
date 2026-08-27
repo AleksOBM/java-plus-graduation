@@ -2,9 +2,13 @@ package ru.practicum.ewm.events.service.event;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.aggregation.dto.event.request.*;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.event.response.EventShortDto;
+import ru.practicum.aggregation.dto.event.come.create.NewEventDto;
+import ru.practicum.aggregation.model.data.AdminGetData;
+import ru.practicum.aggregation.model.data.FreeGetData;
+import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
+import ru.practicum.aggregation.dto.event.come.update.UpdateEventUserRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.event.output.EventShortDto;
 
 import java.util.List;
 
@@ -12,7 +16,7 @@ import java.util.List;
 public interface EventService {
 
 	/// Получение событий незарегистрированным пользователем с возможностью фильтрации
-	List<EventShortDto> getFreeEvents(FreeGetDto freeGetDto, HttpServletRequest request);
+	List<EventShortDto> getFreeEvents(FreeGetData freeGetData, HttpServletRequest request);
 
 	/**
 	 * Получение незарегистрированным пользователем подробной информации об опубликованном событии
@@ -25,7 +29,7 @@ public interface EventService {
 	EventFullDto userAddNewEvent(Long userId, NewEventDto newEventDto);
 
 	/// Поиск событий администратором
-	List<EventFullDto> adminGetEvents(AdminGetDto adminGetDto);
+	List<EventFullDto> adminGetEvents(AdminGetData adminGetData);
 
 	/// Редактирование администратором данных события и его статуса (отклонение/публикация)
 	@Transactional

@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import ru.practicum.aggregation.dto.rating.RatingRequest;
-import ru.practicum.aggregation.dto.rating.RatingResponse;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.rating.come.create.RatingCreateRequest;
+import ru.practicum.aggregation.dto.rating.output.RatingResponse;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 import ru.practicum.aggregation.enums.Reaction;
 import ru.practicum.aggregation.error.exception.ConflictException;
 import ru.practicum.aggregation.error.exception.NotFoundException;
@@ -30,7 +30,7 @@ public class RatingServiceImpl implements RatingService {
 	EventFeignRepository eventFeignRepository;
 
 	@Override
-	public RatingResponse addOrUpdateReaction(long userId, long eventId, @NonNull RatingRequest request) {
+	public RatingResponse addOrUpdateReaction(long userId, long eventId, @NonNull RatingCreateRequest request) {
 		var user = userFeignRepository.getUserDtoById(userId);
 		var event = eventFeignRepository.userFindEventById(userId, eventId);
 		var initiator = event.initiator();

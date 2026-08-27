@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 
 @FeignClient(
 		name = "event-service",

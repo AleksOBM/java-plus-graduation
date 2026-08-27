@@ -2,8 +2,8 @@ package ru.practicum.ewm.events.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.dto.category.CategoryDto;
-import ru.practicum.aggregation.dto.category.NewCategoryDto;
+import ru.practicum.aggregation.dto.category.output.CategoryDto;
+import ru.practicum.aggregation.dto.category.come.NewCategoryDto;
 import ru.practicum.ewm.events.entity.Category;
 
 @UtilityClass

@@ -1,7 +1,7 @@
 package ru.practicum.ewm.requests.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.aggregation.dto.request.ParticipationRequestDto;
+import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.requests.entity.ParticipationRequest;
 
 import java.time.format.DateTimeFormatter;

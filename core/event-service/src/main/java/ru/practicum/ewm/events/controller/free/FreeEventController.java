@@ -4,9 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.event.response.EventShortDto;
-import ru.practicum.aggregation.dto.event.request.FreeGetDto;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.event.output.EventShortDto;
+import ru.practicum.aggregation.model.data.FreeGetData;
 import ru.practicum.ewm.events.service.event.EventService;
 
 import java.time.LocalDateTime;
@@ -69,7 +69,7 @@ public class FreeEventController {
 			Boolean onlyAvailable,
 
 			@RequestParam(required = false)
-			FreeGetDto.FreeEventSort sort,
+			FreeGetData.FreeEventSort sort,
 
 			@RequestParam(required = false, defaultValue = "0")
 			Integer from,
@@ -79,7 +79,7 @@ public class FreeEventController {
 
 			HttpServletRequest request
 	) {
-		FreeGetDto freeGetDto = FreeGetDto.builder()
+		FreeGetData freeGetData = FreeGetData.builder()
 				.text(text)
 				.categories(categories)
 				.paid(paid)
@@ -91,7 +91,7 @@ public class FreeEventController {
 				.size(size)
 				.build();
 
-		return eventService.getFreeEvents(freeGetDto, request);
+		return eventService.getFreeEvents(freeGetData, request);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package ru.practicum.aggregation.repository;
 
-import ru.practicum.aggregation.dto.user.UserDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package ru.practicum.ewm.events.model;
 
 import lombok.Builder;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 /**
  * @apiNote

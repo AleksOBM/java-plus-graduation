@@ -2,10 +2,10 @@ package ru.practicum.ewm.events.service.compilation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.aggregation.dto.compilation.CompilationDto;
-import ru.practicum.aggregation.dto.compilation.CompilationSearchFilter;
-import ru.practicum.aggregation.dto.compilation.CompilationUpdateDto;
-import ru.practicum.aggregation.dto.compilation.NewCompilationDto;
+import ru.practicum.aggregation.dto.compilation.output.CompilationDto;
+import ru.practicum.aggregation.dto.compilation.come.get.CompilationSearchFilter;
+import ru.practicum.aggregation.dto.compilation.come.update.CompilationUpdateDto;
+import ru.practicum.aggregation.dto.compilation.come.create.NewCompilationDto;
 
 import java.util.List;
 

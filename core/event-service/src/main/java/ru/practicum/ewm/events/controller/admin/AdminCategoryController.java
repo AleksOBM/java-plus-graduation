@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.category.CategoryDto;
-import ru.practicum.aggregation.dto.category.NewCategoryDto;
+import ru.practicum.aggregation.dto.category.output.CategoryDto;
+import ru.practicum.aggregation.dto.category.come.NewCategoryDto;
 import ru.practicum.ewm.events.service.category.CategoryService;
 
 @RestController

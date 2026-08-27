@@ -13,11 +13,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import ru.practicum.aggregation.dto.event.request.*;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.event.response.EventShortDto;
-import ru.practicum.aggregation.dto.request.EventRequestCount;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.event.come.create.NewEventDto;
+import ru.practicum.aggregation.model.data.AdminGetData;
+import ru.practicum.aggregation.model.data.FreeGetData;
+import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
+import ru.practicum.aggregation.dto.event.come.update.UpdateEventUserRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.event.output.EventShortDto;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
+import ru.practicum.aggregation.dto.user.output.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.aggregation.enums.AdminStateAction;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.aggregation.enums.UserStateAction;
@@ -31,7 +36,6 @@ import ru.practicum.ewm.events.mapper.EventMapper;
 import ru.practicum.ewm.events.mapper.StateMapper;
 import ru.practicum.ewm.events.mapper.UserMapper;
 import ru.practicum.ewm.events.model.EventData;
-import ru.practicum.ewm.events.model.User;
 import ru.practicum.ewm.events.repository.CategoryRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
 import ru.practicum.ewm.events.specification.EventSpecifications;
@@ -61,7 +65,7 @@ public class EventServiceImpl implements EventService {
 	private static final int HOURS_BEFORE_START = 2;
 
 	@Override
-	public List<EventShortDto> getFreeEvents(@NonNull FreeGetDto dto, HttpServletRequest request) {
+	public List<EventShortDto> getFreeEvents(@NonNull FreeGetData dto, HttpServletRequest request) {
 
 		if (dto.rangeStart() != null && dto.rangeEnd() != null) {
 			if (dto.rangeEnd().isBefore(dto.rangeStart())) {
@@ -200,7 +204,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public List<EventFullDto> adminGetEvents(@NonNull AdminGetDto dto) {
+	public List<EventFullDto> adminGetEvents(@NonNull AdminGetData dto) {
 		Specification<Event> spec = SpecBuilder.<Event>builder()
 				.andIf(dto.users() != null && !dto.users().isEmpty(),
 						() -> EventSpecifications.hasUsers(dto.users()))
@@ -460,9 +464,8 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@NonNull
-	private User getUserById(long userId) {
-		var userDto = userFeignRepository.getUserDtoById(userId);
-		return UserMapper.toEntity(userDto);
+	private UserDto getUserById(long userId) {
+		return userFeignRepository.getUserDtoById(userId);
 	}
 
 	@NonNull

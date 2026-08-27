@@ -2,7 +2,7 @@ package ru.practicum.ewm.requests.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.dto.user.UserDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
 import ru.practicum.ewm.requests.model.User;
 
 @UtilityClass

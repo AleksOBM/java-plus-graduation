@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.aggregation.model.BaseEntity;
+import ru.practicum.aggregation.model.entity.BaseEntity;
 
 @Getter
 @Setter

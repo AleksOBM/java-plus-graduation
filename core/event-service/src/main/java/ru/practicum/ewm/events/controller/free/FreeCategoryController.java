@@ -5,7 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.category.CategoryDto;
+import ru.practicum.aggregation.dto.category.output.CategoryDto;
 import ru.practicum.ewm.events.service.category.CategoryService;
 
 import java.util.List;

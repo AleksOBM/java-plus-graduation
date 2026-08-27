@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.event.request.AdminGetDto;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.event.request.UpdateEventAdminRequest;
+import ru.practicum.aggregation.model.data.AdminGetData;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.ewm.events.service.event.EventService;
 
@@ -63,7 +63,7 @@ public class AdminEventController {
 			Integer size
 	) {
 
-		AdminGetDto getDto = AdminGetDto.builder()
+		AdminGetData getDto = AdminGetData.builder()
 				.users(users)
 				.states(states)
 				.categories(categories)

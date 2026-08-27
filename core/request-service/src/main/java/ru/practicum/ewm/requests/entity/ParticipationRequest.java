@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.aggregation.enums.ParticipationStatus;
-import ru.practicum.aggregation.model.BaseEntity;
+import ru.practicum.aggregation.model.entity.BaseEntity;
 
 import java.time.LocalDateTime;
 

@@ -2,9 +2,9 @@ package ru.practicum.ewm.events.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.dto.compilation.CompilationDto;
-import ru.practicum.aggregation.dto.compilation.NewCompilationDto;
-import ru.practicum.aggregation.dto.user.UserShortDto;
+import ru.practicum.aggregation.dto.compilation.output.CompilationDto;
+import ru.practicum.aggregation.dto.compilation.come.create.NewCompilationDto;
+import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.ewm.events.entity.Compilation;
 import ru.practicum.ewm.events.entity.Event;
 import ru.practicum.ewm.events.model.EventData;

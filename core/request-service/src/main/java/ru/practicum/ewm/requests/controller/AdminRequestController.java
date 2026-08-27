@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.aggregation.dto.request.EventRequestCount;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.enums.ParticipationStatus;
 import ru.practicum.ewm.requests.service.RequestService;
 

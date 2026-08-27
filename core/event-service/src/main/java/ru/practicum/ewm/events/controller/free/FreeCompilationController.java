@@ -3,8 +3,8 @@ package ru.practicum.ewm.events.controller.free;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.compilation.CompilationDto;
-import ru.practicum.aggregation.dto.compilation.CompilationSearchFilter;
+import ru.practicum.aggregation.dto.compilation.output.CompilationDto;
+import ru.practicum.aggregation.dto.compilation.come.get.CompilationSearchFilter;
 import ru.practicum.ewm.events.service.compilation.CompilationService;
 
 import java.util.List;

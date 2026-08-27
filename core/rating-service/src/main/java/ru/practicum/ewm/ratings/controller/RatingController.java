@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.rating.RatingRequest;
-import ru.practicum.aggregation.dto.rating.RatingResponse;
+import ru.practicum.aggregation.dto.rating.come.create.RatingCreateRequest;
+import ru.practicum.aggregation.dto.rating.output.RatingResponse;
 import ru.practicum.ewm.ratings.service.RatingService;
 
 @RestController
@@ -19,7 +19,7 @@ public class RatingController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public RatingResponse addReaction(@PathVariable Long userId,
 	                                  @PathVariable Long eventId,
-	                                  @Valid @RequestBody RatingRequest request) {
+	                                  @Valid @RequestBody RatingCreateRequest request) {
 		return ratingService.addOrUpdateReaction(userId, eventId, request);
 	}
 

@@ -3,8 +3,8 @@ package ru.practicum.aggregation.client.event;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 import ru.practicum.aggregation.client.RemoteExceptionMapper;
-import ru.practicum.aggregation.dto.event.response.EventFullDto;
-import ru.practicum.aggregation.dto.rating.RatingUpdateRequest;
+import ru.practicum.aggregation.dto.event.output.EventFullDto;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 
 @Component
 public class EventFallbackFactory implements FallbackFactory<EventClient> {
