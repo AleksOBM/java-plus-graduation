@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.user.come.NewUserRequest;
 import ru.practicum.aggregation.dto.user.output.UserDto;
-import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.ewm.users.service.UserService;
 
 import java.util.List;
@@ -39,27 +38,6 @@ public class AdminUserController {
 	@GetMapping("/{userId}")
 	public UserDto getUser(@PathVariable Long userId) {
 		return userService.getUser(userId);
-	}
-
-	/**
-	 * Проверка наличия пользователя по ID
-	 *
-	 * @param userId ID пользователя
-	 */
-	@GetMapping("/{userId}/check")
-	public void checkUser(@PathVariable Long userId) {
-		userService.remoteCheckUser(userId);
-	}
-
-	/**
-	 * Получение краткого списка пользователей
-	 *
-	 * @param userIds id пользователей
-	 * @return {@link UserShortDto}
-	 */
-	@GetMapping("/short")
-	public List<UserShortDto> getShortUsersByIds(@RequestParam List<Long> userIds) {
-		return userService.getShortUsersByIds(userIds);
 	}
 
 	/**

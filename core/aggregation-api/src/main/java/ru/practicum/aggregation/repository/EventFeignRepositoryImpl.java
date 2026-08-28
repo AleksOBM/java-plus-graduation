@@ -11,7 +11,6 @@ import ru.practicum.aggregation.client.RemoteCallResult;
 import ru.practicum.aggregation.client.event.EventClient;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
-import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
 
 @Slf4j
@@ -25,22 +24,24 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 	@SuppressWarnings("unused")
 	@Override
 	public void updateRating(@NonNull RatingUpdateRequest request) {
+		log.info("""
+				PLEASE WAITING
+				Система обновляет рейтинг
+				request: {}""", request);
 		var eventId = request.eventId();
 		switch (RemoteCallExecutor.executeVoid(() -> eventClient.systemUpdateRating(request))) {
 			case RemoteCallResult.Success(var nullable) -> {
 			}
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось обновить рейтинг события с id={}
-						""", eventId);
-				throw new UserProcessingException(message);
+						Не удалось обновить рейтинг события с id={}""", eventId);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось обновить рейтинг события с id={}
-						""", eventId);
+						Не удалось обновить рейтинг события с id={}""", eventId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		}
@@ -48,22 +49,23 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 
 	@Override
 	public EventFullDto userFindEventById(long userId, long eventId) {
+		log.info("""
+				PLEASE WAITING
+				Пользователь с id={} ищет событие с id={}""", userId, eventId);
 		return switch (RemoteCallExecutor.execute(() -> eventClient.userFindEventById(userId, eventId))) {
 			case RemoteCallResult.Success(var response) -> response;
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
 						Пользователю с id={}
-						Не удалось получить событие с id={}
-						""", userId, eventId);
-				throw new UserProcessingException(message);
+						Не удалось получить событие с id={}""", userId, eventId);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
 						Пользователю с id={}
-						Не удалось получить событие с id={}
-						""", userId, eventId);
+						Не удалось получить событие с id={}""", userId, eventId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		};
@@ -71,20 +73,21 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 
 	@Override
 	public EventFullDto systemFindEventById(long eventId) {
+		log.info("""
+				PLEASE WAITING
+				Система ищет событие с id={}""", eventId);
 		return switch (RemoteCallExecutor.execute(() -> eventClient.systemFindEventById(eventId))) {
 			case RemoteCallResult.Success(var response) -> response;
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось получить событие с id={}
-						""", eventId);
-				throw new UserProcessingException(message);
+						Не удалось получить событие с id={}""", eventId);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось получить событие с id={}
-						""", eventId);
+						Не удалось получить событие с id={}""", eventId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		};

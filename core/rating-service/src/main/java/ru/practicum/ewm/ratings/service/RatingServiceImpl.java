@@ -10,8 +10,8 @@ import ru.practicum.aggregation.dto.rating.come.create.RatingCreateRequest;
 import ru.practicum.aggregation.dto.rating.output.RatingResponse;
 import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 import ru.practicum.aggregation.enums.Reaction;
-import ru.practicum.aggregation.error.exception.ConflictException;
-import ru.practicum.aggregation.error.exception.NotFoundException;
+import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.repository.EventFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepository;
 import ru.practicum.ewm.ratings.entity.Rating;
@@ -30,7 +30,10 @@ public class RatingServiceImpl implements RatingService {
 	EventFeignRepository eventFeignRepository;
 
 	@Override
-	public RatingResponse addOrUpdateReaction(long userId, long eventId, @NonNull RatingCreateRequest request) {
+	public RatingResponse addOrUpdateReaction(long userId,
+	                                          long eventId,
+	                                          @NonNull RatingCreateRequest request) {
+
 		var user = userFeignRepository.getUserDtoById(userId);
 		var event = eventFeignRepository.userFindEventById(userId, eventId);
 		var initiator = event.initiator();
@@ -46,7 +49,8 @@ public class RatingServiceImpl implements RatingService {
 			if (rating.getReaction() == requestReaction) {
 				ratingRepository.delete(rating);
 				updateEventRate(eventId);
-				throw new ConflictException("Reaction removed");
+				throw new ConflictException("""
+						Реакция пользователя с id=%s событию с id=%s, удалена""".formatted(userId, eventId));
 			} else {
 				rating.setReaction(requestReaction);
 				ratingRepository.save(rating);
@@ -67,8 +71,11 @@ public class RatingServiceImpl implements RatingService {
 
 	@Override
 	public void removeReaction(long userId, long eventId) {
-		Rating rating = ratingRepository.findByUserIdAndEventId(userId, eventId)
-				.orElseThrow(() -> new NotFoundException("Реакция не найдена"));
+		Rating rating = ratingRepository.findByUserIdAndEventId(userId, eventId).orElseThrow(() ->
+				new NotFoundException(
+						"Реакция пользователя с id=%s событию с id=%s, не найдена".formatted(userId, eventId)
+				)
+		);
 		ratingRepository.delete(rating);
 		updateEventRate(eventId);
 	}

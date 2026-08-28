@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * @apiNote
+ * {@link Float} lat<br/>
+ * {@link Float} lon
+ */
 @Data
 @Builder
 public class Location implements Serializable {

@@ -11,7 +11,6 @@ import ru.practicum.aggregation.client.RemoteCallResult;
 import ru.practicum.aggregation.client.user.UserClient;
 import ru.practicum.aggregation.dto.user.output.UserDto;
 import ru.practicum.aggregation.dto.user.output.UserShortDto;
-import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
 
 import java.util.List;
@@ -26,20 +25,21 @@ public class UserFeignRepositoryImpl implements UserFeignRepository {
 
 	@Override
 	public @NonNull UserDto getUserDtoById(long userId) {
+		log.info("""
+				PLEASE WAITING
+				Администратор получает пользователя с id={}""", userId);
 		return switch (RemoteCallExecutor.execute(() -> userClient.getUser(userId))) {
 			case RemoteCallResult.Success(var response) -> response;
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось получить пользователя с id={}
-						""", userId);
-				throw new UserProcessingException(message);
+						Не удалось получить пользователя с id={}""", userId);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось получить пользователя с id={}
-						""", userId);
+						Не удалось получить пользователя с id={}""", userId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		};
@@ -47,22 +47,24 @@ public class UserFeignRepositoryImpl implements UserFeignRepository {
 
 	@Override
 	public List<UserShortDto> getUsersByIds(List<Long> userIds) {
+		log.info("""
+				PLEASE WAITING
+				Система получает пользователей по ID
+				userids: {}""", userIds);
 		return switch (RemoteCallExecutor.execute(() -> userClient.getShortUsersByIds(userIds))) {
 			case RemoteCallResult.Success(var response) -> response;
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
 						Не удалось получить краткий список пользователей
-						userIds: {}
-						""", userIds);
-				throw new UserProcessingException(message);
+						userIds: {}""", userIds);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
 						Не удалось получить краткий список пользователей
-						userIds: {}
-						""", userIds);
+						userIds: {}""", userIds);
 				throw new UserServiceUnavailableException(cause);
 			}
 		};
@@ -71,21 +73,22 @@ public class UserFeignRepositoryImpl implements UserFeignRepository {
 	@SuppressWarnings("unused")
 	@Override
 	public void checkUser(Long userId) {
+		log.info("""
+				PLEASE WAITING
+				Система проверяет наличие пользователя с id={}""", userId);
 		switch (RemoteCallExecutor.executeVoid(() -> userClient.checkUser(userId))) {
 			case RemoteCallResult.Success(var nullable) -> {
 			}
-			case RemoteCallResult.Failure(var message) -> {
+			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось проверить наличие пользователя с id={}
-						""", userId);
-				throw new UserProcessingException(message);
+						Не удалось проверить наличие пользователя с id={}""", userId);
+				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось проверить наличие пользователя с id={}
-						""", userId);
+						Не удалось проверить наличие пользователя с id={}""", userId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		}

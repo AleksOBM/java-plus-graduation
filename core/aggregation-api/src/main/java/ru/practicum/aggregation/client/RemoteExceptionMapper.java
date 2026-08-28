@@ -3,9 +3,9 @@ package ru.practicum.aggregation.client;
 import feign.FeignException;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import ru.practicum.aggregation.error.exception.processing.EventProcessingException;
-import ru.practicum.aggregation.error.exception.processing.RequestProcessingException;
-import ru.practicum.aggregation.error.exception.processing.UserProcessingException;
+import ru.practicum.aggregation.error.exception.bussines.cause.BadRequestException;
+import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.error.exception.unavailable.EventServiceUnavailableException;
 import ru.practicum.aggregation.error.exception.unavailable.RequestServiceUnavailableException;
 import ru.practicum.aggregation.error.exception.unavailable.UserServiceUnavailableException;
@@ -16,8 +16,10 @@ public class RemoteExceptionMapper {
 	public RuntimeException mapUserException(@NonNull Throwable cause) {
 		if (cause instanceof FeignException ex) {
 			return switch (ex.status()) {
-				case 404, 409 -> new UserProcessingException(ex.getMessage());
-				default -> new UserServiceUnavailableException(ex);
+				case 400 -> new BadRequestException(ex.getMessage());
+				case 404 -> new NotFoundException(ex.getMessage());
+				case 409 -> new ConflictException(ex.getMessage());
+				default -> new EventServiceUnavailableException(ex);
 			};
 		}
 		return new UserServiceUnavailableException(cause);
@@ -26,7 +28,9 @@ public class RemoteExceptionMapper {
 	public RuntimeException mapEventException(@NonNull Throwable cause) {
 		if (cause instanceof FeignException ex) {
 			return switch (ex.status()) {
-				case 400, 404, 409 -> new EventProcessingException(ex.getMessage());
+				case 400 -> new BadRequestException(ex.getMessage());
+				case 404 -> new NotFoundException(ex.getMessage());
+				case 409 -> new ConflictException(ex.getMessage());
 				default -> new EventServiceUnavailableException(ex);
 			};
 		}
@@ -36,8 +40,10 @@ public class RemoteExceptionMapper {
 	public RuntimeException mapRequestException(@NonNull Throwable cause) {
 		if (cause instanceof FeignException ex) {
 			return switch (ex.status()) {
-				case 404, 409 -> new RequestProcessingException(ex.getMessage());
-				default -> new RequestServiceUnavailableException(ex);
+				case 400 -> new BadRequestException(ex.getMessage());
+				case 404 -> new NotFoundException(ex.getMessage());
+				case 409 -> new ConflictException(ex.getMessage());
+				default -> new EventServiceUnavailableException(ex);
 			};
 		}
 		return new RequestServiceUnavailableException(cause);

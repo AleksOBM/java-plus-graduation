@@ -14,7 +14,7 @@ import ru.practicum.aggregation.dto.compilation.come.update.CompilationUpdateDto
 import ru.practicum.aggregation.dto.compilation.come.create.NewCompilationDto;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.dto.user.output.UserShortDto;
-import ru.practicum.aggregation.error.exception.NotFoundException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.model.entity.BaseEntity;
 import ru.practicum.aggregation.repository.RequestFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepository;

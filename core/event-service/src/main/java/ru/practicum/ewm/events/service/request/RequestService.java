@@ -13,6 +13,7 @@ public interface RequestService {
 	@Transactional(readOnly = true)
 	List<ParticipationRequestDto> findByEventId(Long userId, Long eventId);
 
-	EventRequestStatusUpdateResult updateStatusRequest(Long userId, Long eventId,
+	EventRequestStatusUpdateResult updateStatusRequest(Long userId,
+	                                                   Long eventId,
 	                                                   EventRequestStatusUpdateRequest status);
 }

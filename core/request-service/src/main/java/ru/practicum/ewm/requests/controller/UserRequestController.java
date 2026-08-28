@@ -1,13 +1,10 @@
 package ru.practicum.ewm.requests.controller;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateRequest;
-import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.requests.service.RequestService;
 
@@ -35,18 +32,6 @@ public class UserRequestController {
 	}
 
 	/**
-	 *
-	 * @param userId  id текущего пользователя
-	 * @param eventId id события
-	 * @return List<{@link ParticipationRequestDto}>
-	 */
-	@GetMapping("/{eventId}")
-	public List<ParticipationRequestDto> findByEventId(@PathVariable @Positive Long userId,
-	                                                   @PathVariable @Positive Long eventId) {
-		return requestService.findByEventId(userId, eventId);
-	}
-
-	/**
 	 * Добавление запроса от текущего пользователя на участие в событии
 	 * <p>
 	 * Обратите внимание:
@@ -71,15 +56,6 @@ public class UserRequestController {
 	public ParticipationRequestDto addParticipationRequest(@PathVariable @Positive Long userId,
 	                                                       @RequestParam @Positive Long eventId) {
 		return requestService.addParticipationRequest(userId, eventId);
-	}
-
-	@PatchMapping("/events/{eventId}/status")
-	public EventRequestStatusUpdateResult updateStatusRequest(
-			@PathVariable @Positive Long userId,
-			@PathVariable @Positive Long eventId,
-			@RequestBody @NotNull EventRequestStatusUpdateRequest request
-	) {
-		return requestService.updateStatusRequest(userId, eventId, request);
 	}
 
 	/**

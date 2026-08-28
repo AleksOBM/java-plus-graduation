@@ -2,8 +2,8 @@ package ru.practicum.aggregation.client;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.practicum.aggregation.error.exception.ServiceProcessingException;
-import ru.practicum.aggregation.error.exception.ServiceUnavailableException;
+import ru.practicum.aggregation.error.exception.bussines.ServiceProcessingException;
+import ru.practicum.aggregation.error.exception.unavailable.ServiceUnavailableException;
 
 import java.util.function.Supplier;
 
@@ -16,7 +16,7 @@ public class RemoteCallExecutor {
 			return new RemoteCallResult.Success<>(action.get());
 
 		} catch (ServiceProcessingException ex) {
-			return new RemoteCallResult.Failure<>(ex.getMessage());
+			return new RemoteCallResult.Failure<>(ex);
 
 		} catch (ServiceUnavailableException ex) {
 			return new RemoteCallResult.Degraded<>(ex);
@@ -30,7 +30,7 @@ public class RemoteCallExecutor {
 			return new RemoteCallResult.Success<>(null);
 
 		} catch (ServiceProcessingException ex) {
-			return new RemoteCallResult.Failure<>(ex.getMessage());
+			return new RemoteCallResult.Failure<>(ex);
 
 		} catch (ServiceUnavailableException ex) {
 			return new RemoteCallResult.Degraded<>(ex);

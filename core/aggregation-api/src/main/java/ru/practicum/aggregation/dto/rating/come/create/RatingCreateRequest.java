@@ -4,6 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import ru.practicum.aggregation.enums.Reaction;
 
+/**
+ * @apiNote
+ * {@link Reaction} reaction
+ */
 @Builder
 public record RatingCreateRequest(
 

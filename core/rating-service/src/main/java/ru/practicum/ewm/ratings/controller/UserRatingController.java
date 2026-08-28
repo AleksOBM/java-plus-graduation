@@ -11,7 +11,7 @@ import ru.practicum.ewm.ratings.service.RatingService;
 @RestController
 @RequestMapping("/users/{userId}/events/{eventId}/likes")
 @RequiredArgsConstructor
-public class RatingController {
+public class UserRatingController {
 
 	private final RatingService ratingService;
 

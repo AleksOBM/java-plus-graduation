@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import ru.practicum.aggregation.error.exception.ConflictException;
-import ru.practicum.aggregation.error.exception.NotFoundException;
+import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.error.exception.stats.HitRequestException;
 import ru.practicum.aggregation.error.exception.stats.StatsResponseException;
 

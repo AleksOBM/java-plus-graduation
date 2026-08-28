@@ -9,6 +9,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+/**
+ * @apiNote
+ * {@link Set}<code><</code>{@link Long}<code>></code> events<br/>
+ * <code>boolean</code> pinned<br/>
+ * {@link String} title
+ */
 @Data
 @Builder
 @AllArgsConstructor

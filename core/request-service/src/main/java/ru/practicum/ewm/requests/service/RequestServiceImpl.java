@@ -7,20 +7,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
-import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateRequest;
 import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
+import ru.practicum.aggregation.dto.user.output.UserDto;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.aggregation.enums.ParticipationStatus;
-import ru.practicum.aggregation.error.exception.ConflictException;
-import ru.practicum.aggregation.error.exception.NotFoundException;
+import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.EventFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepository;
 import ru.practicum.ewm.requests.entity.ParticipationRequest;
 import ru.practicum.ewm.requests.mapper.RequestMapper;
-import ru.practicum.ewm.requests.mapper.UserMapper;
-import ru.practicum.ewm.requests.model.User;
 import ru.practicum.ewm.requests.repository.RequestRepository;
 
 import java.time.LocalDateTime;
@@ -52,12 +51,10 @@ public class RequestServiceImpl implements RequestService {
 				.toList();
 	}
 
-	public EventRequestStatusUpdateResult updateStatusRequest(Long userId, Long eventId,
+	public EventRequestStatusUpdateResult updateStatusRequest(Long eventId,
+	                                                          @NonNull
 	                                                          EventRequestStatusUpdateRequest request) {
 		var event = getEventById(eventId);
-		if (!event.initiator().id().equals(userId)) {
-			throw new NotFoundException("Событие не найдено");
-		}
 
 		int limit = event.participantLimit();
 		List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
@@ -122,7 +119,7 @@ public class RequestServiceImpl implements RequestService {
 	}
 
 	public ParticipationRequestDto addParticipationRequest(Long userId, Long eventId) {
-		User requester = getUserById(userId);
+		UserDto requester = getUserById(userId);
 		var event = getEventById(eventId);
 
 		if (!EventState.PUBLISHED.equals(event.state())) {
@@ -165,7 +162,7 @@ public class RequestServiceImpl implements RequestService {
 		}
 
 		ParticipationRequest request = ParticipationRequest.builder()
-				.requesterId(requester.getId())
+				.requesterId(requester.id())
 				.eventId(event.id())
 				.status(status)
 				.created(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
@@ -185,13 +182,13 @@ public class RequestServiceImpl implements RequestService {
 	}
 
 	@Override
-	public List<EventRequestCount> getRequestsCount(List<Long> eventIds, ParticipationStatus status) {
-		return requestRepository.getCountByEventIdsAndStatus(eventIds, status);
+	public List<EventRequestCount> getRequestsCount(List<Long> eventIds) {
+		return requestRepository.getCountByEventIdsAndStatus(eventIds, ParticipationStatus.CONFIRMED);
 	}
 
 	@NonNull
-	private User getUserById(long userId) {
-		return UserMapper.toEntity(userFeignRepository.getUserDtoById(userId));
+	private UserDto getUserById(long userId) {
+		return userFeignRepository.getUserDtoById(userId);
 	}
 
 	@NonNull

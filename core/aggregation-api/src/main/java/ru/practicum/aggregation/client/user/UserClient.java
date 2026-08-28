@@ -18,10 +18,10 @@ public interface UserClient {
 	@GetMapping("/admin/users/{userId}")
 	UserDto getUser(@PathVariable Long userId);
 
-	@GetMapping("/admin/users/{userId}/check")
+	@GetMapping("/system/users/{userId}/check")
 	void checkUser(@PathVariable Long userId);
 
-	@GetMapping("/admin/users/short")
+	@GetMapping("/system/users/short")
 	List<UserShortDto> getShortUsersByIds(@RequestParam List<Long> userIds);
 
 }

@@ -14,20 +14,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import ru.practicum.aggregation.dto.event.come.create.NewEventDto;
-import ru.practicum.aggregation.model.data.AdminGetData;
-import ru.practicum.aggregation.model.data.FreeGetData;
 import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
 import ru.practicum.aggregation.dto.event.come.update.UpdateEventUserRequest;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.event.output.EventShortDto;
-import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.dto.user.output.UserDto;
 import ru.practicum.aggregation.dto.user.output.UserShortDto;
 import ru.practicum.aggregation.enums.AdminStateAction;
 import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.aggregation.enums.UserStateAction;
-import ru.practicum.aggregation.error.exception.ConflictException;
-import ru.practicum.aggregation.error.exception.NotFoundException;
+import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
+import ru.practicum.aggregation.model.data.AdminGetData;
+import ru.practicum.aggregation.model.data.FreeGetData;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.RequestFeignRepositoryImpl;
 import ru.practicum.aggregation.repository.UserFeignRepositoryImpl;
 import ru.practicum.ewm.events.entity.Category;
@@ -482,8 +482,9 @@ public class EventServiceImpl implements EventService {
 		);
 	}
 
-	private long getConfirmedRequestsCountByEvent(Long eventId) {
-		return requestFeignRepository.getConfirmedRequestsCount(List.of(eventId)).stream()
+	private long getConfirmedRequestsCountByEvent(long eventId) {
+		var eventIds = requestFeignRepository.getConfirmedRequestsCount(List.of(eventId));
+		return eventIds.stream()
 				.filter(requestCount -> requestCount.getEventId().equals(eventId))
 				.findAny()
 				.map(EventRequestCount::getCount)
