@@ -258,14 +258,6 @@ public class EventServiceImpl implements EventService {
 				.toList();
 	}
 
-	@NonNull
-	private Map<Long, UserShortDto> getUserShortDtoMap(@NonNull List<Event> events) {
-		List<Long> userIds = events.stream().map(Event::getInitiatorId).toList();
-		List<UserShortDto> users = userFeignRepository.getUsersByIds(userIds);
-		return users.stream()
-				.collect(Collectors.toMap(UserShortDto::id, user -> user));
-	}
-
 	@Override
 	public EventFullDto adminUpdateEvent(Long eventId, @NonNull UpdateEventAdminRequest request) {
 		Event oldEvent = getEventById(eventId);
@@ -379,10 +371,15 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public EventFullDto findEventById(long eventId) {
+	public EventFullDto findEventById(long eventId, int confirmets) {
 		Event event = getEventById(eventId);
+		var eventData = EventData.builder()
+				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
+				.confirmedRequests(confirmets)
+				.views(getHits(event.getId()))
+				.build();
 
-		return EventMapper.toEventFullDto(event, getEventData(event));
+		return EventMapper.toEventFullDto(event, eventData);
 	}
 
 	@Override
@@ -394,6 +391,14 @@ public class EventServiceImpl implements EventService {
 
 		userFeignRepository.checkUser(userId);
 		return patchEvent(eventId, request, false);
+	}
+
+	@NonNull
+	private Map<Long, UserShortDto> getUserShortDtoMap(@NonNull List<Event> events) {
+		List<Long> userIds = events.stream().map(Event::getInitiatorId).toList();
+		List<UserShortDto> users = userFeignRepository.getUsersByIds(userIds);
+		return users.stream()
+				.collect(Collectors.toMap(UserShortDto::id, user -> user));
 	}
 
 	private EventData getEventData(@NonNull Event event) {

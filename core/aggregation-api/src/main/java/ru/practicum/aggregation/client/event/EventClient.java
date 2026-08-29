@@ -3,10 +3,7 @@ package ru.practicum.aggregation.client.event;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 
@@ -24,6 +21,6 @@ public interface EventClient {
 	void systemUpdateRating(@RequestBody @NotNull @Valid RatingUpdateRequest request);
 
 	@GetMapping("/system/events/{eventId}")
-	EventFullDto systemFindEventById(@PathVariable Long eventId);
+	EventFullDto systemFindEventById(@PathVariable Long eventId, @RequestParam Integer confirmets);
 
 }

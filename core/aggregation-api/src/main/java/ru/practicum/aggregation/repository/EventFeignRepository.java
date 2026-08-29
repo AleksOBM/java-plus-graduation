@@ -10,5 +10,5 @@ public interface EventFeignRepository {
 
 	EventFullDto userFindEventById(long userId, long eventId);
 
-	EventFullDto systemFindEventById(long eventId);
+	EventFullDto systemFindEventById(long eventId, int confirmets);
 }

@@ -72,11 +72,12 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 	}
 
 	@Override
-	public EventFullDto systemFindEventById(long eventId) {
+	public EventFullDto systemFindEventById(long eventId, int confirmets) {
 		log.info("""
 				PLEASE WAITING
 				Система ищет событие с id={}""", eventId);
-		return switch (RemoteCallExecutor.execute(() -> eventClient.systemFindEventById(eventId))) {
+		return switch (RemoteCallExecutor.execute(() ->
+				eventClient.systemFindEventById(eventId, confirmets))) {
 			case RemoteCallResult.Success(var response) -> response;
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""

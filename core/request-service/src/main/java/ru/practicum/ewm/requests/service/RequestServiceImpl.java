@@ -193,7 +193,8 @@ public class RequestServiceImpl implements RequestService {
 
 	@NonNull
 	private EventFullDto getEventById(long eventId) {
-		return eventFeignRepository.systemFindEventById(eventId);
+		int confirmets = requestRepository.countByEventIdAndStatus(eventId, ParticipationStatus.CONFIRMED);
+		return eventFeignRepository.systemFindEventById(eventId, confirmets);
 	}
 
 	@NonNull
