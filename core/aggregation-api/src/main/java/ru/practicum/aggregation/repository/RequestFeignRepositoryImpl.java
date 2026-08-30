@@ -61,13 +61,15 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось получить запросы пользователей на участие в событии с id={}""", eventId);
+						Пользователю с id={}
+						Не удалось получить запросы на участие в событии с id={}""", userId, eventId);
 				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось получить запросы пользователей на участие в событии с id={}""", eventId);
+						Пользователю с id={}
+						Не удалось получить запросы на участие в событии с id={}""", userId, eventId);
 				throw new RequestServiceUnavailableException(cause);
 			}
 		};
@@ -75,26 +77,28 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 
 	@Override
 	public EventRequestStatusUpdateResult updateStatusRequest(Long eventId,
-	                                                          EventRequestStatusUpdateRequest status) {
+	                                                          Integer participantLimit,
+	                                                          Boolean requestModeration,
+	                                                          EventRequestStatusUpdateRequest request) {
 		log.info("""
 				PLEASE WAITING
-				Система обновляет запрос на участие в событии с id={}
-				status: {}""", eventId, status);
+				Система обновляет статус запросов на участие в событии с id={}
+				request: {}""", eventId, request);
 		return switch (RemoteCallExecutor.execute(() ->
-				requestClient.updateStatusRequest(eventId, status))) {
+				requestClient.updateStatusRequest(eventId, participantLimit, requestModeration, request))) {
 			case RemoteCallResult.Success(var response) -> response;
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
-						Не удалось получить запросы пользователей на участие
-						в событии с id={}""", eventId);
+						Не удалось обновить статус запросов на участие в событии с id={}
+						request: {}""", eventId, request);
 				throw exeption;
 			}
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
-						Не удалось получить запросы пользователей на участие
-						в событии с id={}""", eventId);
+						Не удалось обновить статус запросов на участие в событии с id={}
+						request: {}""", eventId, request);
 				throw new RequestServiceUnavailableException(cause);
 			}
 		};

@@ -24,8 +24,12 @@ public class RequestFallbackFactory implements FallbackFactory<RequestClient> {
 			}
 
 			@Override
-			public EventRequestStatusUpdateResult updateStatusRequest(Long eventId,
-			                                                          EventRequestStatusUpdateRequest request) {
+			public EventRequestStatusUpdateResult updateStatusRequest(
+					Long eventId,
+					Integer participantLimit,
+					Boolean requestModeration,
+					EventRequestStatusUpdateRequest request
+			) {
 				throw RemoteExceptionMapper.mapRequestException(cause);
 			}
 

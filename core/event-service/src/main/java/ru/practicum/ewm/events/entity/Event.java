@@ -67,7 +67,7 @@ public class Event extends BaseEntity {
 	LocalDateTime eventDate;
 
 	/// Пользователь инициатор события
-	@JoinColumn(name = "initiator_id")
+	@JoinColumn(name = "initiator_id", nullable = false)
 	Long initiatorId;
 
 	/// Широта и долгота места проведения события

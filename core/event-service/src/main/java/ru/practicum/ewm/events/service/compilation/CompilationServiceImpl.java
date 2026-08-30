@@ -192,8 +192,8 @@ public class CompilationServiceImpl implements CompilationService {
 
 		return eventRequestCountList.stream()
 				.collect(Collectors.toMap(
-								EventRequestCount::getEventId,
-								EventRequestCount::getCount,
+								EventRequestCount::eventId,
+								EventRequestCount::count,
 								(existing, replacement) -> existing
 						)
 				);

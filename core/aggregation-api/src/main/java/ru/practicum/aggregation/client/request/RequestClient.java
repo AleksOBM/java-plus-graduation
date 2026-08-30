@@ -23,6 +23,8 @@ public interface RequestClient {
 	@PatchMapping("/system/requests/events/{eventId}/status")
 	EventRequestStatusUpdateResult updateStatusRequest(
 			@PathVariable Long eventId,
+			@RequestParam Integer participantLimit,
+			@RequestParam Boolean requestModeration,
 			@RequestBody EventRequestStatusUpdateRequest request
 	);
 

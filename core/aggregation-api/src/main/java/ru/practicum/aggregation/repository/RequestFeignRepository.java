@@ -14,5 +14,7 @@ public interface RequestFeignRepository {
 	List<ParticipationRequestDto> findByUserIdAndEventId(long userId, long eventId);
 
 	EventRequestStatusUpdateResult updateStatusRequest(Long eventId,
+	                                                   Integer participantLimit,
+	                                                   Boolean requestModeration,
 	                                                   EventRequestStatusUpdateRequest status);
 }

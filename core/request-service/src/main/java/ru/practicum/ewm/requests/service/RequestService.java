@@ -12,18 +12,20 @@ import java.util.List;
 public interface RequestService {
 
 	@Transactional(readOnly = true)
-	List<ParticipationRequestDto> findByEventId(Long userId, Long eventId);
+	List<ParticipationRequestDto> findByUserIdAndEventId(long userId, long eventId);
 
 	@Transactional(readOnly = true)
-	List<ParticipationRequestDto> findByRequesterId(Long userId);
+	List<ParticipationRequestDto> findByRequesterId(long userId);
 
 	@Transactional(readOnly = true)
 	List<EventRequestCount> getRequestsCount(List<Long> eventIds);
 
-	EventRequestStatusUpdateResult updateStatusRequest(Long eventId,
+	EventRequestStatusUpdateResult updateStatusRequest(long eventId,
+	                                                   int participantLimit,
+	                                                   boolean requestModeration,
 	                                                   EventRequestStatusUpdateRequest request);
 
-	ParticipationRequestDto addParticipationRequest(Long userId, Long eventId);
+	ParticipationRequestDto addParticipationRequest(long userId, long eventId);
 
-	ParticipationRequestDto cancelParticipationRequest(Long userId, Long requestId);
+	ParticipationRequestDto cancelParticipationRequest(long userId, long requestId);
 }

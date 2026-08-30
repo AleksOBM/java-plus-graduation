@@ -1,13 +1,11 @@
 package ru.practicum.aggregation.model.repository;
-
 /**
  * @apiNote
- * Long getEventId() <br/>
- * Long getCount()
+ * {@link Long} eventId <br/>
+ * {@link Long} count
  */
-public interface EventRequestCount {
-
-	Long getEventId();
-
-	Long getCount();
+public record EventRequestCount(
+		Long eventId,
+		Long count
+) {
 }

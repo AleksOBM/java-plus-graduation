@@ -1,6 +1,7 @@
 package ru.practicum.ewm.events.controller.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateR
 import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.events.service.event.EventService;
-import ru.practicum.ewm.events.service.request.RequestService;
+import ru.practicum.ewm.events.service.request.EventRequestService;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 public class UserEventController {
 
 	private final EventService eventService;
-	private final RequestService requestService;
+	private final EventRequestService eventRequestService;
 
 	/**
 	 * Получение событий, добавленных текущим пользователем
@@ -113,7 +114,7 @@ public class UserEventController {
 	public List<ParticipationRequestDto> getRequests(@PathVariable @Positive Long userId,
 	                                                 @PathVariable @Positive Long eventId) {
 
-		return requestService.findByEventId(userId, eventId);
+		return eventRequestService.findByEventId(userId, eventId);
 	}
 
 	/**
@@ -139,9 +140,9 @@ public class UserEventController {
 	public EventRequestStatusUpdateResult patchRequests(
 			@PathVariable @Positive Long userId,
 			@PathVariable @Positive Long eventId,
-			@RequestBody @Valid EventRequestStatusUpdateRequest status
+			@RequestBody @NotNull @Valid EventRequestStatusUpdateRequest status
 	) {
-		return requestService.updateStatusRequest(userId, eventId, status);
+		return eventRequestService.updateStatusRequest(userId, eventId, status);
 	}
 
 }

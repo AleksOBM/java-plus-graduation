@@ -2,6 +2,7 @@ package ru.practicum.ewm.requests.controller;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +35,11 @@ public class SystemRequestController {
 	@PatchMapping("/events/{eventId}/status")
 	public EventRequestStatusUpdateResult updateStatusRequest(
 			@PathVariable @Positive Long eventId,
+			@RequestParam @PositiveOrZero Integer participantLimit,
+			@RequestParam @NotNull Boolean requestModeration,
 			@RequestBody @NotNull EventRequestStatusUpdateRequest request
 	) {
-		return requestService.updateStatusRequest(eventId, request);
+		return requestService.updateStatusRequest(eventId, participantLimit, requestModeration, request);
 	}
 
 	/**
@@ -48,7 +51,7 @@ public class SystemRequestController {
 	@GetMapping("/users/{userId}/events/{eventId}")
 	public List<ParticipationRequestDto> findByUserIdAndEventId(@PathVariable @Positive Long userId,
 	                                                            @PathVariable @Positive Long eventId) {
-		return requestService.findByEventId(userId, eventId);
+		return requestService.findByUserIdAndEventId(userId, eventId);
 	}
 
 }

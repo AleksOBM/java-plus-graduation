@@ -8,12 +8,12 @@ import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto
 import java.util.List;
 
 @Transactional
-public interface RequestService {
+public interface EventRequestService {
 
 	@Transactional(readOnly = true)
-	List<ParticipationRequestDto> findByEventId(Long userId, Long eventId);
+	List<ParticipationRequestDto> findByEventId(long userId, long eventId);
 
-	EventRequestStatusUpdateResult updateStatusRequest(Long userId,
-	                                                   Long eventId,
+	EventRequestStatusUpdateResult updateStatusRequest(long userId,
+	                                                   long eventId,
 	                                                   EventRequestStatusUpdateRequest status);
 }

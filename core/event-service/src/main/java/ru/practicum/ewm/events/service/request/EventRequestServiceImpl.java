@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RequestServiceImpl implements RequestService {
+public class EventRequestServiceImpl implements EventRequestService {
 
 	EventRepository eventRepository;
 
@@ -26,7 +26,7 @@ public class RequestServiceImpl implements RequestService {
 	UserFeignRepositoryImpl userFeignRepository;
 
 	@Override
-	public List<ParticipationRequestDto> findByEventId(Long userId, Long eventId) {
+	public List<ParticipationRequestDto> findByEventId(long userId, long eventId) {
 		checkEvent(eventId);
 		userFeignRepository.checkUser(userId);
 
@@ -34,9 +34,9 @@ public class RequestServiceImpl implements RequestService {
 	}
 
 	@Override
-	public EventRequestStatusUpdateResult updateStatusRequest(Long userId,
-	                                                          Long eventId,
-	                                                          EventRequestStatusUpdateRequest status
+	public EventRequestStatusUpdateResult updateStatusRequest(long userId,
+	                                                          long eventId,
+	                                                          EventRequestStatusUpdateRequest request
 	) {
 		userFeignRepository.checkUser(userId);
 		var event = eventRepository.findById(eventId).orElseThrow(
@@ -49,10 +49,11 @@ public class RequestServiceImpl implements RequestService {
 			);
 		}
 
-		return requestFeignRepository.updateStatusRequest(eventId, status);
+		return requestFeignRepository.updateStatusRequest(
+				eventId, event.getParticipantLimit(), event.isRequestModeration(), request);
 	}
 
-	private void checkEvent(Long eventId) {
+	private void checkEvent(long eventId) {
 		if (!eventRepository.existsById(eventId)) {
 			throw new NotFoundException("Событие с id=%s не найдено".formatted(eventId));
 		}

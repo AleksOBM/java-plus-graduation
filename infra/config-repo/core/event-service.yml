@@ -18,6 +18,8 @@ spring:
         format_sql: true
   cloud:
     openfeign:
+      okhttp:
+        enabled: true
       client:
         config:
           default:

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
-import ru.practicum.ewm.events.service.rating.RatingService;
+import ru.practicum.ewm.events.service.rating.EventRatingService;
 
 @Slf4j
 @RestController
@@ -19,10 +19,10 @@ import ru.practicum.ewm.events.service.rating.RatingService;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SystemRatingController {
 
-	RatingService ratingService;
+	EventRatingService eventRatingService;
 
 	@PatchMapping
 	public void updateRating(@RequestBody @NotNull RatingUpdateRequest request) {
-		ratingService.updateRating(request);
+		eventRatingService.updateRating(request);
 	}
 }

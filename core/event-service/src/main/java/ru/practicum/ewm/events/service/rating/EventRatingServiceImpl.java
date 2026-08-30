@@ -13,7 +13,7 @@ import ru.practicum.ewm.events.repository.EventRepository;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RatingServiceImpl implements RatingService {
+public class EventRatingServiceImpl implements EventRatingService {
 
 	EventRepository eventRepository;
 

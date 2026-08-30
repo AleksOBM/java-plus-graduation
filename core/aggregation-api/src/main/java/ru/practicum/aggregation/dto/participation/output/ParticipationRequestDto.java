@@ -3,6 +3,8 @@ package ru.practicum.aggregation.dto.participation.output;
 import lombok.Builder;
 import ru.practicum.aggregation.enums.ParticipationStatus;
 
+import java.time.LocalDateTime;
+
 /**
  * @apiNote
  * {@link Long} id<br/>
@@ -14,7 +16,7 @@ import ru.practicum.aggregation.enums.ParticipationStatus;
 @Builder
 public record ParticipationRequestDto(
 		Long id,
-		String created,
+		LocalDateTime created,
 		Long event,
 		Long requester,
 		ParticipationStatus status

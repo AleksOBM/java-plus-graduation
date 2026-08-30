@@ -29,6 +29,12 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+
+        <!-- okhttp -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

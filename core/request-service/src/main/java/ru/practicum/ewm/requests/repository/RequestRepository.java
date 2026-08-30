@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.enums.ParticipationStatus;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.ewm.requests.entity.ParticipationRequest;
 
 import java.util.List;
@@ -21,12 +21,11 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 	int countByEventIdAndStatus(Long eventId, ParticipationStatus status);
 
 	@Query("""
-			SELECT pr.eventId as eventId,
-			COUNT(pr) as count
-			FROM ParticipationRequest pr
-			WHERE pr.eventId IN :eventIds
-			AND pr.status = :status
-			GROUP BY pr.eventId
+			SELECT new ru.practicum.aggregation.model.repository.EventRequestCount(pr.eventId, COUNT(pr))
+			        FROM ParticipationRequest pr
+			        WHERE pr.eventId IN :eventIds
+			        AND pr.status = :status
+			        GROUP BY pr.eventId
 			""")
 	List<EventRequestCount> getCountByEventIdsAndStatus(List<Long> eventIds, ParticipationStatus status);
 

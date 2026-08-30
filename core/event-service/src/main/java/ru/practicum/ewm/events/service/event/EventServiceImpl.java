@@ -123,7 +123,7 @@ public class EventServiceImpl implements EventService {
 		Map<Long, Long> requestCountMap = new HashMap<>();
 		if (!eventRequestCountList.isEmpty()) {
 			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.getEventId(), eventRequestCount.getCount())
+					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
 			);
 		}
 
@@ -234,7 +234,7 @@ public class EventServiceImpl implements EventService {
 		Map<Long, Long> requestCountMap = new HashMap<>();
 		if (!eventRequestCountList.isEmpty()) {
 			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.getEventId(), eventRequestCount.getCount())
+					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
 			);
 		}
 
@@ -246,7 +246,7 @@ public class EventServiceImpl implements EventService {
 
 		return events.stream()
 				.map(event -> {
-					var userId = requestCountMap.get(event.getInitiatorId());
+					var userId = event.getInitiatorId();
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
 							.confirmedRequests(getConfirmedRequestsCountFromMap(
@@ -335,7 +335,7 @@ public class EventServiceImpl implements EventService {
 		Map<Long, Long> requestCountMap = new HashMap<>();
 		if (!eventRequestCountList.isEmpty()) {
 			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.getEventId(), eventRequestCount.getCount())
+					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
 			);
 		}
 
@@ -488,12 +488,12 @@ public class EventServiceImpl implements EventService {
 	}
 
 	private long getConfirmedRequestsCountByEvent(long eventId) {
-		var eventIds = requestFeignRepository.getConfirmedRequestsCount(List.of(eventId));
-		return eventIds.stream()
-				.filter(requestCount -> requestCount.getEventId().equals(eventId))
-				.findAny()
-				.map(EventRequestCount::getCount)
-				.orElse(0L);
+		var counts = requestFeignRepository.getConfirmedRequestsCount(List.of(eventId));
+		if (counts.isEmpty()) {
+			return 0;
+		}
+
+		return counts.getFirst().count();
 	}
 
 	private long getHits(long eventId) {

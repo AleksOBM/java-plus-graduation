@@ -1,25 +1,18 @@
 package ru.practicum.ewm.requests.mapper;
 
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.requests.entity.ParticipationRequest;
-
-import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class RequestMapper {
 
 	public ParticipationRequestDto toParticipationRequestDto(
-			ParticipationRequest participationRequest) {
-
-		if (participationRequest == null) {
-			return null;
-		}
-
-		var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+			@NonNull ParticipationRequest participationRequest) {
 
 		var dateTime = participationRequest.getCreated() == null ?
-				null : participationRequest.getCreated().format(formatter);
+				null : participationRequest.getCreated();
 
 		return ParticipationRequestDto.builder()
 				.event(participationRequest.getEventId())
