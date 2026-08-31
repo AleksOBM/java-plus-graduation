@@ -20,7 +20,7 @@ public class EventRatingServiceImpl implements EventRatingService {
 	@Override
 	public void updateRating(@NonNull RatingUpdateRequest request) {
 		Event event = eventRepository.findById(request.eventId()).orElseThrow(() ->
-				new NotFoundException("Event with id " + request.eventId() + " not found"));
+				new NotFoundException("Событие с id=%s не найдено".formatted(request.eventId())));
 		event.setRate(request.rate());
 		eventRepository.save(event);
 	}

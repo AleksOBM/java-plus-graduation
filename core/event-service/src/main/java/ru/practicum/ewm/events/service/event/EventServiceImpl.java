@@ -45,7 +45,10 @@ import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -117,28 +120,24 @@ public class EventServiceImpl implements EventService {
 			return Collections.emptyList();
 		}
 
-		List<EventRequestCount> eventRequestCountList = requestFeignRepository
-				.getConfirmedRequestsCount(events.stream().map(Event::getId).toList());
+		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
+				events.stream().map(Event::getId).toList());
 
-		Map<Long, Long> requestCountMap = new HashMap<>();
-		if (!eventRequestCountList.isEmpty()) {
-			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
-			);
-		}
+		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
-		List<String> uris = events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
-		List<ViewStatsDto> stats = statRepository.getStat(
-				uris, dto.rangeStart(), dto.rangeEnd(), false);
+		List<String> uris = getUris(events);
+		List<ViewStatsDto> stats = statRepository
+				.getStat(uris, dto.rangeStart(), dto.rangeEnd(), false);
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
 
 		return events.stream()
 				.map(event -> {
-					var userId = requestCountMap.get(event.getInitiatorId());
+					var userId = event.getInitiatorId();
+					var count = eventIdToRequestCount.getOrDefault(userId, 0L);
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
-							.confirmedRequests(requestCountMap.getOrDefault(event.getId(), 0L))
+							.confirmedRequests(count)
 							.views(stats.size())
 							.build();
 					return EventMapper.toEventShortDto(event, eventData);
@@ -196,7 +195,7 @@ public class EventServiceImpl implements EventService {
 
 		var eventData = EventData.builder()
 				.initiator(initiator)
-				.confirmedRequests(0L)
+				.confirmedRequests(0)
 				.views(0L)
 				.build();
 
@@ -228,17 +227,12 @@ public class EventServiceImpl implements EventService {
 			return Collections.emptyList();
 		}
 
-		List<EventRequestCount> eventRequestCountList = requestFeignRepository.getConfirmedRequestsCount(
+		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
 
-		Map<Long, Long> requestCountMap = new HashMap<>();
-		if (!eventRequestCountList.isEmpty()) {
-			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
-			);
-		}
+		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
-		List<String> uris = events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
+		List<String> uris = getUris(events);
 		List<ViewStatsDto> stats = statRepository
 				.getStat(uris, dto.rangeStart(), dto.rangeEnd(), false);
 
@@ -247,10 +241,10 @@ public class EventServiceImpl implements EventService {
 		return events.stream()
 				.map(event -> {
 					var userId = event.getInitiatorId();
+					var count = getConfirmedRequestsCountFromMap(eventIdToRequestCount, event.getId());
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
-							.confirmedRequests(getConfirmedRequestsCountFromMap(
-									requestCountMap, event.getId()))
+							.confirmedRequests(count)
 							.views(getHits(stats, event.getId()))
 							.build();
 					return EventMapper.toEventFullDto(event, eventData);
@@ -329,27 +323,22 @@ public class EventServiceImpl implements EventService {
 			return Collections.emptyList();
 		}
 
-		List<EventRequestCount> eventRequestCountList = requestFeignRepository.getConfirmedRequestsCount(
+		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
 
-		Map<Long, Long> requestCountMap = new HashMap<>();
-		if (!eventRequestCountList.isEmpty()) {
-			eventRequestCountList.forEach(eventRequestCount ->
-					requestCountMap.put(eventRequestCount.eventId(), eventRequestCount.count())
-			);
-		}
+		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
-		List<String> uris = events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
+		List<String> uris = getUris(events);
 		List<ViewStatsDto> stats = statRepository.getStat(uris, true);
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
 
 		return events.stream()
 				.map(event -> {
+					var count = getConfirmedRequestsCountFromMap(eventIdToRequestCount, event.getId());
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
-							.confirmedRequests(
-									getConfirmedRequestsCountFromMap(requestCountMap, event.getId()))
+							.confirmedRequests(count)
 							.views(getHits(stats, event.getId()))
 							.build();
 					return EventMapper.toEventShortDto(event, eventData);
@@ -371,7 +360,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public EventFullDto findEventById(long eventId, int confirmets) {
+	public EventFullDto findEventById(long eventId, long confirmets) {
 		Event event = getEventById(eventId);
 		var eventData = EventData.builder()
 				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
@@ -393,20 +382,27 @@ public class EventServiceImpl implements EventService {
 		return patchEvent(eventId, request, false);
 	}
 
+	private List<EventRequestCount> fetchConfirmedRequestsCount(List<Long> events) {
+		return requestFeignRepository.getConfirmedRequestsCount(events);
+	}
+
+	@NonNull
+	private List<String> getUris(@NonNull List<Event> events) {
+		return events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
+	}
+
+	private Map<Long, Long> getRequestCountMap(@NonNull List<EventRequestCount> eventRequestCountList) {
+		return eventRequestCountList.stream()
+				.collect(Collectors.toMap(EventRequestCount::eventId, EventRequestCount::count,
+						(a, b) -> a));
+	}
+
 	@NonNull
 	private Map<Long, UserShortDto> getUserShortDtoMap(@NonNull List<Event> events) {
 		List<Long> userIds = events.stream().map(Event::getInitiatorId).toList();
 		List<UserShortDto> users = userFeignRepository.getUsersByIds(userIds);
 		return users.stream()
 				.collect(Collectors.toMap(UserShortDto::id, user -> user));
-	}
-
-	private EventData getEventData(@NonNull Event event) {
-		return EventData.builder()
-				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
-				.confirmedRequests(getConfirmedRequestsCountByEvent(event.getId()))
-				.views(getHits(event.getId()))
-				.build();
 	}
 
 	@SuppressWarnings("SameParameterValue")
@@ -468,6 +464,14 @@ public class EventServiceImpl implements EventService {
 		}
 	}
 
+	private EventData getEventData(@NonNull Event event) {
+		return EventData.builder()
+				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
+				.confirmedRequests(getConfirmedRequestsCountByEvent(event.getId()))
+				.views(getHits(event.getId()))
+				.build();
+	}
+
 	@NonNull
 	private UserDto getUserById(long userId) {
 		return userFeignRepository.getUserDtoById(userId);
@@ -488,7 +492,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	private long getConfirmedRequestsCountByEvent(long eventId) {
-		var counts = requestFeignRepository.getConfirmedRequestsCount(List.of(eventId));
+		var counts = fetchConfirmedRequestsCount(List.of(eventId));
 		if (counts.isEmpty()) {
 			return 0;
 		}
@@ -497,7 +501,8 @@ public class EventServiceImpl implements EventService {
 	}
 
 	private long getHits(long eventId) {
-		List<ViewStatsDto> stats = statRepository.getStat(List.of(EVENTS_PATH + eventId), true);
+		List<ViewStatsDto> stats = statRepository.getStat(
+				List.of(EVENTS_PATH + eventId), true);
 		if (stats.isEmpty()) {
 			return 0;
 		}
@@ -516,7 +521,9 @@ public class EventServiceImpl implements EventService {
 		return 0;
 	}
 
-	private long getConfirmedRequestsCountFromMap(@NonNull Map<Long, Long> requestCountMap, long eventId) {
+	private long getConfirmedRequestsCountFromMap(@NonNull
+	                                              Map<Long, Long> requestCountMap,
+	                                              long eventId) {
 		if (requestCountMap.isEmpty()) {
 			return 0;
 		}

@@ -42,7 +42,7 @@ public interface EventService {
 	EventFullDto findEventByUserIdAndEventId(Long userId, Long eventId);
 
 	/// Получение полной информации о событии по ID
-	EventFullDto findEventById(long eventId, int confirmets);
+	EventFullDto findEventById(long eventId, long confirmets);
 
 	/// Изменение события добавленного текущим пользователем
 	@Transactional

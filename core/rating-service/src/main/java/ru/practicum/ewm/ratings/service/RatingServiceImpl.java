@@ -9,14 +9,18 @@ import org.springframework.stereotype.Service;
 import ru.practicum.aggregation.dto.rating.come.create.RatingCreateRequest;
 import ru.practicum.aggregation.dto.rating.output.RatingResponse;
 import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
+import ru.practicum.aggregation.enums.EventState;
 import ru.practicum.aggregation.enums.Reaction;
 import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException;
 import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
+import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.EventFeignRepository;
+import ru.practicum.aggregation.repository.RequestFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepository;
 import ru.practicum.ewm.ratings.entity.Rating;
 import ru.practicum.ewm.ratings.repository.RatingRepository;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -28,6 +32,7 @@ public class RatingServiceImpl implements RatingService {
 
 	UserFeignRepository userFeignRepository;
 	EventFeignRepository eventFeignRepository;
+	RequestFeignRepository requestFeignRepository;
 
 	@Override
 	public RatingResponse addOrUpdateReaction(long userId,
@@ -35,11 +40,19 @@ public class RatingServiceImpl implements RatingService {
 	                                          @NonNull RatingCreateRequest request) {
 
 		var user = userFeignRepository.getUserDtoById(userId);
-		var event = eventFeignRepository.userFindEventById(userId, eventId);
+		var confirmedRequestsCount = requestFeignRepository.getConfirmedRequestsCount(List.of(eventId));
+		long contirmets = confirmedRequestsCount.stream()
+				.map(EventRequestCount::count).findAny()
+				.orElse(0L);
+		var event = eventFeignRepository.systemFindEventById(eventId, contirmets);
 		var initiator = event.initiator();
 
 		if (Objects.equals(user.id(), initiator.id())) {
 			throw new ValidationException("Нельзя ставить реакции своим событиям");
+		}
+
+		if (!event.state().equals(EventState.PUBLISHED)) {
+			throw new NotFoundException("Нельзя поставить реакцию не опубликованному событию");
 		}
 
 		var rating = ratingRepository.findByUserIdAndEventId(userId, eventId).orElse(null);

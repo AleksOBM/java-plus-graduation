@@ -72,9 +72,11 @@ public class EventMapper {
 				.initiatorId(initiatorId)
 				.location(newEventDto.location())
 				.paid(newEventDto.paid() != null && newEventDto.paid())
-				.participantLimit(newEventDto.participantLimit() == null ? 0 : newEventDto.participantLimit())
+				.participantLimit(newEventDto.participantLimit() == null
+						? 0 : newEventDto.participantLimit())
 				.publishedOn(publishedOn)
-				.requestModeration(newEventDto.requestModeration() == null || newEventDto.requestModeration())
+				.requestModeration(newEventDto.requestModeration() == null
+						|| newEventDto.requestModeration())
 				.state(state)
 				.title(newEventDto.title())
 				.rate(0)

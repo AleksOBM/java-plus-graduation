@@ -48,31 +48,7 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 	}
 
 	@Override
-	public EventFullDto userFindEventById(long userId, long eventId) {
-		log.info("""
-				PLEASE WAITING
-				Пользователь с id={} ищет событие с id={}""", userId, eventId);
-		return switch (RemoteCallExecutor.execute(() -> eventClient.userFindEventById(userId, eventId))) {
-			case RemoteCallResult.Success(var response) -> response;
-			case RemoteCallResult.Failure(var exeption) -> {
-				log.warn("""
-						Бизнес-исключение
-						Пользователю с id={}
-						Не удалось получить событие с id={}""", userId, eventId);
-				throw exeption;
-			}
-			case RemoteCallResult.Degraded(var cause) -> {
-				log.warn("""
-						Деградация
-						Пользователю с id={}
-						Не удалось получить событие с id={}""", userId, eventId);
-				throw new UserServiceUnavailableException(cause);
-			}
-		};
-	}
-
-	@Override
-	public EventFullDto systemFindEventById(long eventId, int confirmets) {
+	public EventFullDto systemFindEventById(long eventId, long confirmets) {
 		log.info("""
 				PLEASE WAITING
 				Система ищет событие с id={}""", eventId);

@@ -21,7 +21,7 @@ public class SystemEventController {
 
 	@GetMapping("/{eventId}")
 	EventFullDto systemFindEventById(@PathVariable @Positive Long eventId,
-	                                 @RequestParam @PositiveOrZero Integer confirmets) {
+	                                 @RequestParam @PositiveOrZero Long confirmets) {
 		return eventService.findEventById(eventId, confirmets);
 	}
 }

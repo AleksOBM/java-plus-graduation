@@ -15,7 +15,7 @@ import java.util.List;
 )
 public interface UserClient {
 
-	@GetMapping("/admin/users/{userId}")
+	@GetMapping("/system/users/{userId}")
 	UserDto getUser(@PathVariable Long userId);
 
 	@GetMapping("/system/users/{userId}/check")

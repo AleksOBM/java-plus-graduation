@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * @apiNote
- * <code>List<{@link ParticipationRequestDto}> confirmedRequests</code> <br/>
- * <code>List<{@link ParticipationRequestDto}> rejectedRequests</code> <br/>
+ * {@link List}<code><</code>{@link ParticipationRequestDto}<code>></code> confirmedRequests</code> <br/>
+ * {@link List}<code><</code>{@link ParticipationRequestDto}<code>></code> rejectedRequests</code>
  */
 @Builder
 public record EventRequestStatusUpdateResult(

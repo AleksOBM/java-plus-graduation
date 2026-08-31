@@ -13,14 +13,10 @@ import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
 )
 public interface EventClient {
 
-	@GetMapping("/users/{userId}/events/{eventId}")
-	EventFullDto userFindEventById(@PathVariable Long userId,
-	                               @PathVariable Long eventId);
-
 	@PatchMapping("/system/events/ratings")
 	void systemUpdateRating(@RequestBody @NotNull @Valid RatingUpdateRequest request);
 
 	@GetMapping("/system/events/{eventId}")
-	EventFullDto systemFindEventById(@PathVariable Long eventId, @RequestParam Integer confirmets);
+	EventFullDto systemFindEventById(@PathVariable Long eventId, @RequestParam Long confirmets);
 
 }
