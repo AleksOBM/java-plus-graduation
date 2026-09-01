@@ -1,4 +1,4 @@
-package ru.practicum.stat.server.model;
+package ru.practicum.stat.server.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EndpointHit {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -28,4 +29,16 @@ public class EndpointHit {
 
 	@Column(name = "hit_timestamp", nullable = false)
 	private LocalDateTime timestamp;
+
+	@Override
+	public String toString() {
+		return """
+				{
+					"id": "%s",
+					"app": "%s",
+					"uri": "%s",
+					"ip": "%s",
+					"timestamp": "%s"
+				}""".formatted(id, app, uri, ip, timestamp);
+	}
 }

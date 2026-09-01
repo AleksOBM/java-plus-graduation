@@ -3,12 +3,12 @@ package ru.practicum.ewm.events.service.event;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.aggregation.dto.event.come.create.NewEventDto;
-import ru.practicum.aggregation.model.data.AdminGetData;
-import ru.practicum.aggregation.model.data.FreeGetData;
 import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
 import ru.practicum.aggregation.dto.event.come.update.UpdateEventUserRequest;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.event.output.EventShortDto;
+import ru.practicum.aggregation.model.data.AdminGetData;
+import ru.practicum.aggregation.model.data.FreeGetData;
 
 import java.util.List;
 
@@ -47,5 +47,5 @@ public interface EventService {
 	/// Изменение события добавленного текущим пользователем
 	@Transactional
 	EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest request);
-	
+
 }

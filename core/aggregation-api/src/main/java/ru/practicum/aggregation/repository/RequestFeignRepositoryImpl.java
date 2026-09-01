@@ -83,7 +83,7 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 		log.info("""
 				PLEASE WAITING
 				Система обновляет статус запросов на участие в событии с id={}
-				request: {}""", eventId, request);
+				{}""", eventId, request);
 		return switch (RemoteCallExecutor.execute(() ->
 				requestClient.updateStatusRequest(eventId, participantLimit, requestModeration, request))) {
 			case RemoteCallResult.Success(var response) -> response;
@@ -98,7 +98,7 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				log.warn("""
 						Деградация
 						Не удалось обновить статус запросов на участие в событии с id={}
-						request: {}""", eventId, request);
+						{}""", eventId, request);
 				throw new RequestServiceUnavailableException(cause);
 			}
 		};

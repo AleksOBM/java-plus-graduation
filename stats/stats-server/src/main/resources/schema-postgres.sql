@@ -5,3 +5,5 @@ CREATE TABLE IF NOT EXISTS stats (
     ip        VARCHAR(45)  NOT NULL,
     hit_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL
     );
+
+CREATE INDEX IF NOT EXISTS idx_endpoint_hits_stats ON stats(hit_timestamp, uri, ip);

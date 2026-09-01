@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 /**
+ * Данные категории для изменения категории
+ * @apiNote
  * <code>Long</code> id <br/>
  * <code>String</code> name
  */

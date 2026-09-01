@@ -1,7 +1,10 @@
 package ru.practicum.ewm.events.controller.admin;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.model.data.AdminGetData;
@@ -13,6 +16,7 @@ import ru.practicum.ewm.events.service.event.EventService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/admin/events")
 @RequiredArgsConstructor
@@ -21,21 +25,8 @@ public class AdminEventController {
 	private final EventService eventService;
 
 	/**
-	 * Поиск событий
-	 * <p>
 	 * Эндпоинт возвращает полную информацию обо всех событиях подходящих под переданные условия
 	 * В случае, если по заданным фильтрам не найдено ни одного события, возвращает пустой список
-	 *
-	 * @param users      список id пользователей, чьи события нужно найти
-	 * @param states     список состояний в которых находятся искомые события
-	 * @param categories список id категорий в которых будет вестись поиск
-	 * @param rangeStart дата и время не раньше которых должно произойти событие
-	 * @param rangeEnd   дата и время не позже которых должно произойти событие
-	 * @param from       количество событий, которые нужно пропустить для формирования текущего набора
-	 *                   Default value : 0
-	 * @param size       количество событий в наборе
-	 *                   Default value : 10
-	 * @return List<{@link EventFullDto}>
 	 */
 	@GetMapping
 	public List<EventFullDto> adminGetEvents(
@@ -60,8 +51,15 @@ public class AdminEventController {
 			Integer from,
 
 			@RequestParam(required = false, defaultValue = "10")
-			Integer size
+			Integer size,
+
+			@NonNull HttpServletRequest request
 	) {
+
+		log.info("""
+				ENDPOINT
+				Поиск событий
+				{} {}""", request.getMethod(), request.getRequestURI());
 
 		AdminGetData getDto = AdminGetData.builder()
 				.users(users)
@@ -77,23 +75,28 @@ public class AdminEventController {
 	}
 
 	/**
-	 * Редактирование данных события и его статуса (отклонение/публикация)
-	 * <p>
-	 * Редактирование данных любого события администратором. Валидация данных не требуется. Обратите внимание:
-	 * - дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
-	 * - событие можно публиковать, только если оно в состоянии ожидания публикации (Ожидается код ошибки 409)
-	 * - событие можно отклонить, только если оно еще не опубликовано (Ожидается код ошибки 409)
-	 *
-	 * @param eventId id события
-	 * @param request Данные HTTP-запроса
-	 * @return {@link EventFullDto}
+	 * Редактирование данных любого события администратором.</br>
+	 * Валидация данных не требуется.</br>
+	 * Обратите внимание:</br>
+	 * - дата начала изменяемого события должна быть не ранее чем за час от даты публикации. </br>
+	 * (Ожидается код ошибки 409)</br>
+	 * - событие можно публиковать, только если оно в состоянии ожидания публикации </br>
+	 * (Ожидается код ошибки 409)</br>
+	 * - событие можно отклонить, только если оно еще не опубликовано </br>
+	 * (Ожидается код ошибки 409)
 	 */
 	@PatchMapping("/{eventId}")
 	public EventFullDto adminUpdateEvent(
 			@PathVariable Long eventId,
-			@RequestBody @Valid UpdateEventAdminRequest request) {
+			@RequestBody @Valid UpdateEventAdminRequest updateRequest,
+			@NonNull HttpServletRequest request) {
 
-		return eventService.adminUpdateEvent(eventId, request);
+		log.info("""
+				ENDPOINT
+				Редактирование данных события и его статуса (отклонение/публикация)
+				{} {}""", request.getMethod(), request.getRequestURI());
+
+		return eventService.adminUpdateEvent(eventId, updateRequest);
 	}
 
 }

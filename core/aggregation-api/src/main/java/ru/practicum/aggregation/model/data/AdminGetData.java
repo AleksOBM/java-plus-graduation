@@ -8,13 +8,15 @@ import java.util.List;
 
 /**
  *
- * @param users
- * @param states
- * @param categories
- * @param rangeStart
- * @param rangeEnd
- * @param from
- * @param size
+ * @param users      список id пользователей, чьи события нужно найти
+ * @param states     список состояний в которых находятся искомые события
+ * @param categories список id категорий в которых будет вестись поиск
+ * @param rangeStart дата и время не раньше которых должно произойти событие
+ * @param rangeEnd   дата и время не позже которых должно произойти событие
+ * @param from       количество событий, которые нужно пропустить для формирования текущего набора</br>
+ *                   Default value : 0
+ * @param size       количество событий в наборе</br>
+ *                   Default value : 10
  */
 @Builder
 public record AdminGetData(

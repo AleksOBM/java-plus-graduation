@@ -29,6 +29,7 @@ import ru.practicum.aggregation.model.data.AdminGetData;
 import ru.practicum.aggregation.model.data.FreeGetData;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.RequestFeignRepositoryImpl;
+import ru.practicum.aggregation.repository.StatsFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepositoryImpl;
 import ru.practicum.ewm.events.entity.Category;
 import ru.practicum.ewm.events.entity.Event;
@@ -40,7 +41,6 @@ import ru.practicum.ewm.events.repository.CategoryRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
 import ru.practicum.ewm.events.specification.EventSpecifications;
 import ru.practicum.ewm.events.specification.SpecBuilder;
-import ru.practicum.ewm.events.statistic.StatRestRepository;
 import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.time.Instant;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventServiceImpl implements EventService {
 
-	StatRestRepository statRepository;
+	StatsFeignRepository statsFeignRepository;
 	EventRepository eventRepository;
 	CategoryRepository categoryRepository;
 
@@ -75,8 +75,6 @@ public class EventServiceImpl implements EventService {
 				throw new ValidationException("Окончание события не может быть раньше начала");
 			}
 		}
-
-		statRepository.sendHitRequest(request);
 
 		SpecBuilder<Event> builder = SpecBuilder.<Event>builder()
 				.and(EventSpecifications.isPublished())
@@ -120,13 +118,13 @@ public class EventServiceImpl implements EventService {
 			return Collections.emptyList();
 		}
 
-		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
+		var confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
 
 		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
 		List<String> uris = getUris(events);
-		List<ViewStatsDto> stats = statRepository
+		List<ViewStatsDto> stats = statsFeignRepository
 				.getStat(uris, dto.rangeStart(), dto.rangeEnd(), false);
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
@@ -152,14 +150,20 @@ public class EventServiceImpl implements EventService {
 					"Событие с id=%s не существует или не опубликовано.".formatted(eventId));
 		}
 
-		statRepository.sendHitRequest(request);
-
 		var event = getEventById(eventId);
+		var initiator = UserMapper.toUserShortDto(getUserById(event.getInitiatorId()));
+		var uri = List.of(request.getRequestURI());
+		var views = statsFeignRepository.getStat(uri, true)
+				.stream()
+				.findFirst()
+				.map(ViewStatsDto::getHits)
+				.orElse(0L);
+		var confirmedRequestsCount = getConfirmedRequestsCountByEventId(eventId);
+
 		var eventData = EventData.builder()
-				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
-				.confirmedRequests(getConfirmedRequestsCountByEvent(eventId))
-				.views(statRepository.getStat(List.of(request.getRequestURI()), true)
-						.getFirst().getHits())
+				.initiator(initiator)
+				.confirmedRequests(confirmedRequestsCount)
+				.views(views)
 				.build();
 
 		return EventMapper.toEventFullDto(event, eventData);
@@ -196,7 +200,7 @@ public class EventServiceImpl implements EventService {
 		var eventData = EventData.builder()
 				.initiator(initiator)
 				.confirmedRequests(0)
-				.views(0L)
+				.views(0)
 				.build();
 
 		return EventMapper.toEventFullDto(event, eventData);
@@ -233,7 +237,7 @@ public class EventServiceImpl implements EventService {
 		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
 		List<String> uris = getUris(events);
-		List<ViewStatsDto> stats = statRepository
+		List<ViewStatsDto> stats = statsFeignRepository
 				.getStat(uris, dto.rangeStart(), dto.rangeEnd(), false);
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
@@ -310,7 +314,7 @@ public class EventServiceImpl implements EventService {
 
 		var event = eventRepository.save(newEvent);
 
-		return EventMapper.toEventFullDto(event, getEventData(event));
+		return EventMapper.toEventFullDto(event, getEventData(eventId, event.getInitiatorId()));
 	}
 
 	@Override
@@ -329,7 +333,7 @@ public class EventServiceImpl implements EventService {
 		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
 		List<String> uris = getUris(events);
-		List<ViewStatsDto> stats = statRepository.getStat(uris, true);
+		List<ViewStatsDto> stats = statsFeignRepository.getStat(uris, true);
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
 
@@ -351,12 +355,13 @@ public class EventServiceImpl implements EventService {
 		userFeignRepository.checkUser(userId);
 
 		Event event = getEventById(eventId);
+		var initiatorId = event.getInitiatorId();
 
-		if (!event.getInitiatorId().equals(userId)) {
+		if (!initiatorId.equals(userId)) {
 			throw new ConflictException("Пользователь должен быть инициатором");
 		}
 
-		return EventMapper.toEventFullDto(event, getEventData(event));
+		return EventMapper.toEventFullDto(event, getEventData(eventId, initiatorId));
 	}
 
 	@Override
@@ -380,29 +385,6 @@ public class EventServiceImpl implements EventService {
 
 		userFeignRepository.checkUser(userId);
 		return patchEvent(eventId, request, false);
-	}
-
-	private List<EventRequestCount> fetchConfirmedRequestsCount(List<Long> events) {
-		return requestFeignRepository.getConfirmedRequestsCount(events);
-	}
-
-	@NonNull
-	private List<String> getUris(@NonNull List<Event> events) {
-		return events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
-	}
-
-	private Map<Long, Long> getRequestCountMap(@NonNull List<EventRequestCount> eventRequestCountList) {
-		return eventRequestCountList.stream()
-				.collect(Collectors.toMap(EventRequestCount::eventId, EventRequestCount::count,
-						(a, b) -> a));
-	}
-
-	@NonNull
-	private Map<Long, UserShortDto> getUserShortDtoMap(@NonNull List<Event> events) {
-		List<Long> userIds = events.stream().map(Event::getInitiatorId).toList();
-		List<UserShortDto> users = userFeignRepository.getUsersByIds(userIds);
-		return users.stream()
-				.collect(Collectors.toMap(UserShortDto::id, user -> user));
 	}
 
 	@SuppressWarnings("SameParameterValue")
@@ -456,7 +438,7 @@ public class EventServiceImpl implements EventService {
 
 			log.info("Событие обновлено: {}", patched.getId());
 
-			return EventMapper.toEventFullDto(event, getEventData(event));
+			return EventMapper.toEventFullDto(event, getEventData(eventId, event.getInitiatorId()));
 
 		} catch (DataIntegrityViolationException e) {
 			log.debug("Конфликт во время обновления события {}", request, e);
@@ -464,11 +446,34 @@ public class EventServiceImpl implements EventService {
 		}
 	}
 
-	private EventData getEventData(@NonNull Event event) {
+	private List<EventRequestCount> fetchConfirmedRequestsCount(List<Long> events) {
+		return requestFeignRepository.getConfirmedRequestsCount(events);
+	}
+
+	@NonNull
+	private List<String> getUris(@NonNull List<Event> events) {
+		return events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
+	}
+
+	private Map<Long, Long> getRequestCountMap(@NonNull List<EventRequestCount> eventRequestCountList) {
+		return eventRequestCountList.stream()
+				.collect(Collectors.toMap(EventRequestCount::eventId, EventRequestCount::count,
+						(a, b) -> a));
+	}
+
+	@NonNull
+	private Map<Long, UserShortDto> getUserShortDtoMap(@NonNull List<Event> events) {
+		List<Long> userIds = events.stream().map(Event::getInitiatorId).toList();
+		List<UserShortDto> users = userFeignRepository.getUsersByIds(userIds);
+		return users.stream()
+				.collect(Collectors.toMap(UserShortDto::id, user -> user));
+	}
+
+	private EventData getEventData(long eventId, long initiatorId) {
 		return EventData.builder()
-				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
-				.confirmedRequests(getConfirmedRequestsCountByEvent(event.getId()))
-				.views(getHits(event.getId()))
+				.initiator(UserMapper.toUserShortDto(getUserById(initiatorId)))
+				.confirmedRequests(getConfirmedRequestsCountByEventId(eventId))
+				.views(getHits(eventId))
 				.build();
 	}
 
@@ -491,7 +496,7 @@ public class EventServiceImpl implements EventService {
 		);
 	}
 
-	private long getConfirmedRequestsCountByEvent(long eventId) {
+	private long getConfirmedRequestsCountByEventId(long eventId) {
 		var counts = fetchConfirmedRequestsCount(List.of(eventId));
 		if (counts.isEmpty()) {
 			return 0;
@@ -501,7 +506,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	private long getHits(long eventId) {
-		List<ViewStatsDto> stats = statRepository.getStat(
+		List<ViewStatsDto> stats = statsFeignRepository.getStat(
 				List.of(EVENTS_PATH + eventId), true);
 		if (stats.isEmpty()) {
 			return 0;

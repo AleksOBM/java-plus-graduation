@@ -1,6 +1,7 @@
 package ru.practicum.stat.server.controller;
 
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,16 +14,16 @@ import ru.practicum.stat.server.service.StatService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class StatController {
 
 	private final StatService statService;
 
 	@PostMapping("/hit")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void hit(@Valid @RequestBody EndpointHitDto endpointHitDto) {
+	public void hit(@NonNull @Valid @RequestBody EndpointHitDto endpointHitDto) {
 		log.info("Сохранение статистики: сервис={}, uri={}, ip={}",
 				endpointHitDto.getApp(), endpointHitDto.getUri(), endpointHitDto.getIp());
 		statService.saveHit(endpointHitDto);

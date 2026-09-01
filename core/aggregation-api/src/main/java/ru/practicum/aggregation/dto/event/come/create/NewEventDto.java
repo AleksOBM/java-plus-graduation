@@ -11,6 +11,9 @@ import ru.practicum.aggregation.model.entity.Location;
 
 import java.time.LocalDateTime;
 
+/**
+ * данные добавляемого события
+ */
 @Data
 @Builder()
 @Accessors(fluent = true)

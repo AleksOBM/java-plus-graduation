@@ -4,10 +4,6 @@ public class StatsResponseException extends RuntimeException {
 
 	private static final String MESSAGE = "Не удалось получить статистику";
 
-	public StatsResponseException(Exception ex) {
-		super(MESSAGE, ex);
-	}
-
 	public StatsResponseException() {
 		super(MESSAGE);
 	}

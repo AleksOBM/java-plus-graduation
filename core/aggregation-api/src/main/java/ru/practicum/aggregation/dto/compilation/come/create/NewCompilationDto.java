@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 /**
+ * данные новой подборки
  * @apiNote
  * {@link Set}<code><</code>{@link Long}<code>></code> events<br/>
  * <code>boolean</code> pinned<br/>

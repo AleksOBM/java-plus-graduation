@@ -48,7 +48,3 @@ resilience4j:
       default:
         timeout-duration: 3s
 
-#logging:
-#  org:
-#    zalando:
-#      logbook: trace

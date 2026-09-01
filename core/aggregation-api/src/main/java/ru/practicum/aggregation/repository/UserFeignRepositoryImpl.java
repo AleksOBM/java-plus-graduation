@@ -27,7 +27,7 @@ public class UserFeignRepositoryImpl implements UserFeignRepository {
 	public @NonNull UserDto getUserDtoById(long userId) {
 		log.info("""
 				PLEASE WAITING
-				Администратор получает пользователя с id={}""", userId);
+				Система получает пользователя с id={}""", userId);
 		return switch (RemoteCallExecutor.execute(() -> userClient.getUser(userId))) {
 			case RemoteCallResult.Success(var response) -> response;
 			case RemoteCallResult.Failure(var exeption) -> {

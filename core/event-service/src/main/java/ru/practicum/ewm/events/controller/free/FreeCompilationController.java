@@ -1,7 +1,9 @@
 package ru.practicum.ewm.events.controller.free;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.compilation.output.CompilationDto;
 import ru.practicum.aggregation.dto.compilation.come.get.CompilationSearchFilter;
@@ -9,6 +11,7 @@ import ru.practicum.ewm.events.service.compilation.CompilationService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/compilations")
 @RequiredArgsConstructor
@@ -17,25 +20,20 @@ public class FreeCompilationController {
 	private final CompilationService compilationService;
 
 	/**
-	 * Получение подборок событий
-	 * <p>
 	 * В случае, если по заданным фильтрам не найдено ни одной подборки, возвращает пустой список
-	 *
-	 * @param pinned  искать только закрепленные/не закрепленные подборки
-	 * @param from    количество элементов, которые нужно пропустить для формирования текущего набора
-	 *                Default value : 0
-	 * @param size    количество элементов в наборе
-	 *                Default value : 10
-	 * @param request Данные HTTP-запроса
-	 * @return List<{@link CompilationDto}>
 	 */
 	@GetMapping
 	public List<CompilationDto> getCompilations(
 			@RequestParam(required = false) Boolean pinned,
 			@RequestParam(defaultValue = "0") Integer from,
 			@RequestParam(defaultValue = "10") Integer size,
-			HttpServletRequest request
+			@NonNull HttpServletRequest request
 	) {
+		log.info("""
+				ENDPOINT
+				Получение подборок событий
+				{} {}""", request.getMethod(), request.getRequestURI());
+
 		CompilationSearchFilter filter = CompilationSearchFilter.builder()
 				.pinned(pinned)
 				.from(from)
@@ -45,16 +43,14 @@ public class FreeCompilationController {
 		return compilationService.getByFilter(filter, request);
 	}
 
-	/**
-	 * Получение подборки событий по его id
-	 *
-	 * @param compId  id подборки
-	 * @param request Данные HTTP-запроса
-	 * @return {@link CompilationDto}
-	 */
 	@GetMapping("/{compId}")
 	public CompilationDto getCompilationById(@PathVariable Long compId,
-	                                         HttpServletRequest request) {
+	                                         @NonNull HttpServletRequest request) {
+
+		log.info("""
+				ENDPOINT
+				Получение подборки событий по её id
+				{} {}""", request.getMethod(), request.getRequestURI());
 
 		return compilationService.getById(compId, request);
 	}

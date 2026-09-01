@@ -7,6 +7,19 @@ import ru.practicum.aggregation.model.entity.Location;
 
 import java.time.LocalDateTime;
 
+/**
+ * данные для обновления события текущим пользователем
+ * @param annotation
+ * @param category
+ * @param description
+ * @param eventDate
+ * @param location
+ * @param paid
+ * @param participantLimit
+ * @param requestModeration
+ * @param stateAction
+ * @param title
+ */
 @Builder
 public record UpdateEventUserRequest(
 

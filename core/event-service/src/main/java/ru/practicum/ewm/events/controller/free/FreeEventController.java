@@ -1,49 +1,43 @@
 package ru.practicum.ewm.events.controller.free;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.event.output.EventShortDto;
 import ru.practicum.aggregation.model.data.FreeGetData;
+import ru.practicum.aggregation.repository.StatsFeignRepository;
 import ru.practicum.ewm.events.service.event.EventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/events")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FreeEventController {
 
-	private final EventService eventService;
+	EventService eventService;
+	StatsFeignRepository statsFeignRepository;
 
 	/**
-	 * Получение событий с возможностью фильтрации
-	 * <p>
-	 * Обратите внимание:
-	 * - это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события
-	 * - текстовый поиск (по аннотации и подробному описанию) должен быть без учета регистра букв
+	 * Обратите внимание:<br/>
+	 * - это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события<br/>
+	 * - текстовый поиск (по аннотации и подробному описанию) должен быть без учета регистра букв<br/>
 	 * - если в запросе не указан диапазон дат [rangeStart-rangeEnd], то нужно выгружать события,
-	 * которые произойдут позже текущей даты и времени
+	 * которые произойдут позже текущей даты и времени<br/>
 	 * - информация о каждом событии должна включать в себя количество просмотров и количество
-	 * уже одобренных заявок на участие
+	 * уже одобренных заявок на участие<br/>
 	 * - информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно
-	 * сохранить в сервисе статистики
+	 * сохранить в сервисе статистики<br/>
 	 * В случае, если по заданным фильтрам не найдено ни одного события, возвращает пустой список
-	 *
-	 * @param text          текст для поиска в содержимом аннотации и подробном описании события
-	 * @param categories    список идентификаторов категорий в которых будет вестись поиск
-	 * @param paid          поиск только платных/бесплатных событий
-	 * @param rangeStart    дата и время не раньше которых должно произойти событие
-	 * @param rangeEnd      дата и время не позже которых должно произойти событие
-	 * @param onlyAvailable только события у которых не исчерпан лимит запросов на участие Default value : false
-	 * @param sort          Вариант сортировки: по дате события или по количеству просмотров Available values : EVENT_DATE, VIEWS
-	 * @param from          количество событий, которые нужно пропустить для формирования текущего набора Default value : 0
-	 * @param size          количество событий в наборе Default value : 10
-	 * @param request       Данные HTTP-запроса
-	 * @return List<{@link EventShortDto}>
 	 */
 	@GetMapping
 	public List<EventShortDto> getFreeEvents(
@@ -77,7 +71,7 @@ public class FreeEventController {
 			@RequestParam(required = false, defaultValue = "10")
 			Integer size,
 
-			HttpServletRequest request
+			@NonNull HttpServletRequest request
 	) {
 		FreeGetData freeGetData = FreeGetData.builder()
 				.text(text)
@@ -91,21 +85,30 @@ public class FreeEventController {
 				.size(size)
 				.build();
 
-		return eventService.getFreeEvents(freeGetData, request);
+		log.info("""
+				ENDPOINT
+				Получение событий с возможностью фильтрации
+				{} {}""", request.getMethod(), request.getRequestURI());
+
+		var result = eventService.getFreeEvents(freeGetData, request);
+		statsFeignRepository.sendHitRequest(request);
+
+		return result;
 	}
 
-	/**
-	 * Получение подробной информации об опубликованном событии по его идентификатору.
-	 *
-	 * @param eventId id события
-	 * @param request Данные HTTP-запроса
-	 * @return {@link EventFullDto}
-	 */
 	@GetMapping(value = "/{eventId}")
 	public EventFullDto getFreeEventById(@PathVariable Long eventId,
-	                                     HttpServletRequest request) {
+	                                     @NonNull HttpServletRequest request) {
 
-		return eventService.getFreeEventById(eventId, request);
+		log.info("""
+				ENDPOINT
+				Получение подробной информации об опубликованном событии по его идентификатору.
+				{} {}""", request.getMethod(), request.getRequestURI());
+
+		var result = eventService.getFreeEventById(eventId, request);
+		statsFeignRepository.sendHitRequest(request);
+
+		return result;
 	}
 
 }

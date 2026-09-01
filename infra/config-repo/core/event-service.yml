@@ -23,8 +23,8 @@ spring:
       client:
         config:
           default:
-            connectTimeout: 2000
-            readTimeout: 3000
+            connectTimeout: 3000
+            readTimeout: 4000
             loggerLevel: basic
       circuitbreaker:
         enabled: true
@@ -47,8 +47,3 @@ resilience4j:
     configs:
       default:
         timeout-duration: 3s
-
-#logging:
-#  org:
-#    zalando:
-#      logbook: trace

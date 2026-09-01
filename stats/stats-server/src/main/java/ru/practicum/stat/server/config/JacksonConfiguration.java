@@ -1,4 +1,4 @@
-package ru.practicum.stat.server.util.config;
+package ru.practicum.stat.server.config;
 
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import java.time.format.DateTimeFormatter;
 
 @SpringBootConfiguration
-public class StatServerConfiguration {
+public class JacksonConfiguration {
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
