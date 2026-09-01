@@ -24,6 +24,7 @@ import ru.practicum.ewm.events.entity.Event;
 import ru.practicum.ewm.events.mapper.CompilationMapper;
 import ru.practicum.ewm.events.repository.CompilationRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
+import ru.practicum.aggregation.model.data.StatsRequestData;
 import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.util.*;
@@ -214,15 +215,21 @@ public class CompilationServiceImpl implements CompilationService {
 		// Все URIs
 		List<String> uris = allEvents.stream().map(e -> "/events/" + e.getId()).toList();
 
-		List<ViewStatsDto> stats = statsFeignRepository.getStat(uris, false);
+		var statsOptional = statsFeignRepository.getStatList(
+				StatsRequestData.builder()
+						.uris(uris)
+						.unique(false)
+						.build()
+		);
 
 		//  Map<eventId, hits>
-		return stats.stream().collect(Collectors.toMap(statsDto ->
+		return statsOptional.map(viewStatsDtos -> viewStatsDtos.stream()
+				.collect(Collectors.toMap(statsDto ->
 								Long.parseLong(statsDto.getUri().replace("/events/", "")),
 						ViewStatsDto::getHits,
 						(a, b) -> a
-				)
-		);
+				))
+		).orElse(Collections.emptyMap());
 	}
 
 }

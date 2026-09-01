@@ -12,13 +12,14 @@ import ru.practicum.aggregation.client.RemoteCallExecutor;
 import ru.practicum.aggregation.client.RemoteCallResult;
 import ru.practicum.aggregation.client.stats.StatsClient;
 import ru.practicum.aggregation.error.exception.stats.StatsResponseException;
-import ru.practicum.aggregation.error.exception.unavailable.StatsServerUnavailableException;
 import ru.practicum.stat.dto.EndpointHitDto;
+import ru.practicum.aggregation.model.data.StatsRequestData;
 import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -40,29 +41,14 @@ public class StatsFeignRepositoryImpl implements StatsFeignRepository {
 	}
 
 	@Override
-	public List<ViewStatsDto> getStat(List<String> statUris,
-	                                  LocalDateTime rangeStart,
-	                                  LocalDateTime rangeEnd,
-	                                  boolean uniqe) {
+	public Optional<List<ViewStatsDto>> getStatList(@NonNull StatsRequestData request) {
 
-		if (statUris == null || statUris.isEmpty()) {
+		var statUris = request.getUris();
+		if (statUris.isEmpty()) {
 			throw new StatsResponseException();
 		}
 
-		if (rangeStart == null) {
-			rangeStart = startUnixEpoch.truncatedTo(ChronoUnit.SECONDS);
-		}
-
-		if (rangeEnd == null) {
-			rangeEnd = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		}
-
-		return getStatistic(rangeStart, rangeEnd, statUris, uniqe);
-	}
-
-	@Override
-	public List<ViewStatsDto> getStat(List<String> statUris, boolean uniqe) {
-		return getStat(statUris, null, null, uniqe);
+		return getStatistic(request.getStart(), request.getEnd(), statUris, request.getUnique());
 	}
 
 	@SuppressWarnings("unused")
@@ -77,33 +63,33 @@ public class StatsFeignRepositoryImpl implements StatsFeignRepository {
 			}
 			case RemoteCallResult.Failure(var exeptionNullable) -> {
 			}
-			case RemoteCallResult.Degraded(var cause) -> {
-				log.warn("""
-						Деградация
-						Не удалось зарегистрировать статистику
-						{}""", endpointHitDto);
-				throw new StatsServerUnavailableException("", cause);
-			}
+			case RemoteCallResult.Degraded(var cause) -> log.warn("""
+					Деградация
+					Не удалось зарегистрировать статистику
+					{}""", endpointHitDto, cause);
+
 		}
 	}
 
-	private List<ViewStatsDto> getStatistic(LocalDateTime start,
-	                                        LocalDateTime end,
-	                                        List<String> uris,
-	                                        boolean unique) {
+	@NonNull
+	private Optional<List<ViewStatsDto>> getStatistic(LocalDateTime start,
+	                                                  LocalDateTime end,
+	                                                  List<String> uris,
+	                                                  boolean unique) {
 		log.info("""
 				PLEASE WAITING
 				Система получает статистику
 				uris: {}""", uris);
 		return switch (RemoteCallExecutor.execute(() -> statsClient.getStats(start, end, uris, unique))) {
-			case RemoteCallResult.Success(var response) -> response;
+			case RemoteCallResult.Success(var response) -> Optional.of(response);
 			case RemoteCallResult.Failure(var exeptionNullable) -> throw exeptionNullable;
 			case RemoteCallResult.Degraded(var cause) -> {
 				log.warn("""
 						Деградация
 						Не удалось получить статистику
-						uris: {}""", uris);
-				throw new StatsServerUnavailableException("", cause);
+						uris: {}""", uris, cause);
+
+				yield Optional.empty();
 			}
 		};
 	}
