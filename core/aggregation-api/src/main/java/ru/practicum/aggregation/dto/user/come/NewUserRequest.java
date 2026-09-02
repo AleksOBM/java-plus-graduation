@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 /**
+ * Данные добавляемого пользователя
  * @apiNote
  * String name <br/>
  * String email

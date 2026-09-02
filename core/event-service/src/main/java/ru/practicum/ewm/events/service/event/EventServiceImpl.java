@@ -162,14 +162,14 @@ public class EventServiceImpl implements EventService {
 		var event = getEventById(eventId);
 		var initiator = UserMapper.toUserShortDto(getUserById(event.getInitiatorId()));
 		var uris = List.of(request.getRequestURI());
-		var stats = statsFeignRepository.getStatList(
+		var statsOptional = statsFeignRepository.getStatList(
 				StatsRequestData.builder()
 						.uris(uris)
 						.unique(true)
 						.build()
 		);
 
-		long views = stats.map(viewStatsDtos -> viewStatsDtos.stream()
+		long views = statsOptional.map(viewStatsDtos -> viewStatsDtos.stream()
 						.findFirst()
 						.map(ViewStatsDto::getHits)
 						.orElse(0L)
