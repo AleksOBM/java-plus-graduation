@@ -20,8 +20,13 @@ public class SystemEventController {
 	EventService eventService;
 
 	@GetMapping("/{eventId}")
-	EventFullDto systemFindEventById(@PathVariable @Positive Long eventId,
-	                                 @RequestParam @PositiveOrZero Long confirmets) {
+	public EventFullDto systemFindEventById(@PathVariable @Positive Long eventId,
+	                                        @RequestParam @PositiveOrZero Long confirmets) {
 		return eventService.findEventById(eventId, confirmets);
+	}
+
+	@GetMapping("/{eventId}/initiator")
+	public Long systemGetInitiatorIfPublished(@PathVariable @Positive Long eventId) {
+		return eventService.getInitiatorIfPublished(eventId);
 	}
 }

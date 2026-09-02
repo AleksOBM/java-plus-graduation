@@ -27,6 +27,7 @@ import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException
 import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.model.data.AdminGetData;
 import ru.practicum.aggregation.model.data.FreeGetData;
+import ru.practicum.aggregation.model.data.StatsRequestData;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.RequestFeignRepositoryImpl;
 import ru.practicum.aggregation.repository.StatsFeignRepository;
@@ -41,7 +42,6 @@ import ru.practicum.ewm.events.repository.CategoryRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
 import ru.practicum.ewm.events.specification.EventSpecifications;
 import ru.practicum.ewm.events.specification.SpecBuilder;
-import ru.practicum.aggregation.model.data.StatsRequestData;
 import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.time.Instant;
@@ -156,11 +156,8 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public EventFullDto getFreeEventById(Long eventId, HttpServletRequest request) {
-		if (!eventRepository.existsByIdAndState(eventId, EventState.PUBLISHED)) {
-			throw new NotFoundException(
-					"Событие с id=%s не существует или не опубликовано.".formatted(eventId));
-		}
+	public EventFullDto getFreeEventById(Long eventId, @NonNull HttpServletRequest request) {
+		checkEvent(eventId);
 
 		var event = getEventById(eventId);
 		var initiator = UserMapper.toUserShortDto(getUserById(event.getInitiatorId()));
@@ -426,6 +423,21 @@ public class EventServiceImpl implements EventService {
 
 		userFeignRepository.checkUser(userId);
 		return patchEvent(eventId, request, false);
+	}
+
+	@Override
+	public long getInitiatorIfPublished(Long eventId) {
+		checkEvent(eventId);
+		long initiatorId = eventRepository.getInitiatorIdByEventId(eventId);
+		userFeignRepository.checkUser(initiatorId);
+		return initiatorId;
+	}
+
+	private void checkEvent(Long eventId) {
+		if (!eventRepository.existsByIdAndState(eventId, EventState.PUBLISHED)) {
+			throw new NotFoundException(
+					"Событие с id=%s не существует или не опубликовано.".formatted(eventId));
+		}
 	}
 
 	@SuppressWarnings("SameParameterValue")

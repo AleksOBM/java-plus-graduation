@@ -1,6 +1,7 @@
 package ru.practicum.ewm.events.service.event;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Positive;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.aggregation.dto.event.come.create.NewEventDto;
 import ru.practicum.aggregation.dto.event.come.update.UpdateEventAdminRequest;
@@ -48,4 +49,5 @@ public interface EventService {
 	@Transactional
 	EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest request);
 
+	long getInitiatorIfPublished(@Positive Long eventId);
 }

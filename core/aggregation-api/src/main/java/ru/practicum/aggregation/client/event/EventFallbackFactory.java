@@ -23,6 +23,11 @@ public class EventFallbackFactory implements FallbackFactory<EventClient> {
 			public EventFullDto systemFindEventById(Long eventId, Long confirmets) {
 				throw RemoteExceptionMapper.mapEventException(cause);
 			}
+
+			@Override
+			public Long systemGetInitiatorIfPublished(Long eventId) {
+				throw RemoteExceptionMapper.mapEventException(cause);
+			}
 		};
 	}
 

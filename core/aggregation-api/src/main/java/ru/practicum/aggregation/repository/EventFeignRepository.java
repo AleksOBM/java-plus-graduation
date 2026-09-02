@@ -8,4 +8,6 @@ public interface EventFeignRepository {
 	void updateRating(RatingUpdateRequest request);
 
 	EventFullDto systemFindEventById(long eventId, long confirmets);
+
+	Long getInitiatorIfPublished(Long eventId);
 }

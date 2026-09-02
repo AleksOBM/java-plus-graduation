@@ -38,12 +38,9 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 						Не удалось обновить рейтинг события с id={}""", eventId);
 				throw exeption;
 			}
-			case RemoteCallResult.Degraded(var cause) -> {
-				log.warn("""
-						Деградация
-						Не удалось обновить рейтинг события с id={}""", eventId);
-				throw new UserServiceUnavailableException(cause);
-			}
+			case RemoteCallResult.Degraded(var cause) -> log.warn("""
+					Деградация
+					Не удалось обновить рейтинг события с id={}""", eventId, cause);
 		}
 	}
 
@@ -65,6 +62,29 @@ public class EventFeignRepositoryImpl implements EventFeignRepository {
 				log.warn("""
 						Деградация
 						Не удалось получить событие с id={}""", eventId);
+				throw new UserServiceUnavailableException(cause);
+			}
+		};
+	}
+
+	@Override
+	public Long getInitiatorIfPublished(Long eventId) {
+		log.info("""
+				PLEASE WAITING
+				Система ищет инициатора события с id={}""", eventId);
+		return switch (RemoteCallExecutor.execute(() ->
+				eventClient.systemGetInitiatorIfPublished(eventId))) {
+			case RemoteCallResult.Success(var response) -> response;
+			case RemoteCallResult.Failure(var exeption) -> {
+				log.warn("""
+						Бизнес-исключение
+						Не удалось получить инициатора события с id={}""", eventId);
+				throw exeption;
+			}
+			case RemoteCallResult.Degraded(var cause) -> {
+				log.warn("""
+						Деградация
+						Не удалось получить инициатора события с id={}""", eventId);
 				throw new UserServiceUnavailableException(cause);
 			}
 		};

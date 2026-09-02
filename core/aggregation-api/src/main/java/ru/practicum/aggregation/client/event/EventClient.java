@@ -19,4 +19,7 @@ public interface EventClient {
 	@GetMapping("/system/events/{eventId}")
 	EventFullDto systemFindEventById(@PathVariable Long eventId, @RequestParam Long confirmets);
 
+	@GetMapping("/system/events/{eventId}/initiator")
+	Long systemGetInitiatorIfPublished(@PathVariable Long eventId);
+
 }
