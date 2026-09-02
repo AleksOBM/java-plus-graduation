@@ -1,0 +1,27 @@
+package ru.practicum.ewm.events.service.rating;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+import ru.practicum.aggregation.dto.rating.come.update.RatingUpdateRequest;
+import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
+import ru.practicum.ewm.events.entity.Event;
+import ru.practicum.ewm.events.repository.EventRepository;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class EventRatingServiceImpl implements EventRatingService {
+
+	EventRepository eventRepository;
+
+	@Override
+	public void updateRating(@NonNull RatingUpdateRequest request) {
+		Event event = eventRepository.findById(request.eventId()).orElseThrow(() ->
+				new NotFoundException("Событие с id=%s не найдено".formatted(request.eventId())));
+		event.setRate(request.rate());
+		eventRepository.save(event);
+	}
+}

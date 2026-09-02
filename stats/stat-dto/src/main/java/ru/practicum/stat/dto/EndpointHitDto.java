@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EndpointHitDto {
+
 	@NotBlank(message = "Название приложения не может быть пустым")
 	@Size(max = 255, message = "APP слишком длинный (макс. 255 символов)")
 	private String app;

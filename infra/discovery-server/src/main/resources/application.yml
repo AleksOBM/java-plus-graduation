@@ -2,13 +2,14 @@ server:
   port: 8761
 
 spring:
+  application:
+    name: discovery-server
+  output:
+    ansi:
+      enabled: ALWAYS
   main:
     banner-mode: off
     log-startup-info: false
-  jackson:
-    serialization.INDENT_OUTPUT: true
-  application:
-    name: discovery-server
 
 eureka:
   client:
@@ -17,14 +18,14 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 
-logging:
-  level:
-    root: info
-    org:
-      springframework: error
-
 management:
   endpoints:
     web:
       exposure:
         include: health, metrics, prometheus, info, mappings
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: error

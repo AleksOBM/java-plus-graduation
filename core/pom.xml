@@ -14,7 +14,39 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>main-service</module>
+        <module>aggregation-api</module>
+        <module>event-service</module>
+        <module>request-service</module>
+        <module>user-service</module>
+        <module>rating-service</module>
     </modules>
+
+    <dependencies>
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- okhttp -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Duser.language=ru -Duser.country=RU</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

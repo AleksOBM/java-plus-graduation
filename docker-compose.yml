@@ -1,3 +1,7 @@
+volumes:
+  postgres_main-db_data:
+  postgres_stats-db_data:
+
 services:
   main-db:
     image: postgres:16.1
@@ -8,10 +12,13 @@ services:
       - POSTGRES_DB=ewm-main
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
+    volumes:
+      - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql:ro
+      - postgres_main-db_data:/var/lib/postgresql/data
     healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
-      timeout: 5s
+      test: [ "CMD-SHELL", "pg_isready -U dbuser -d ewm-main" ]
       interval: 5s
+      timeout: 5s
       retries: 10
 
   stats-db:
@@ -23,6 +30,8 @@ services:
       - POSTGRES_DB=ewm-stats
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
+    volumes:
+      - postgres_stats-db_data:/var/lib/postgresql/data
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s

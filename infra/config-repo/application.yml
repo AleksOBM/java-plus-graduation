@@ -1,18 +1,19 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
   main:
     banner-mode: off
     log-startup-info: false
-  jackson:
-    serialization.INDENT_OUTPUT: true
 
 logging:
   level:
     root: info
     org:
-      springframework: error
+      springframework: info
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, metrics, prometheus, info, mappings
+        include: health, metrics, prometheus, info, mappings, refresh

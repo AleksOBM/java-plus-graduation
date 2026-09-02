@@ -1,0 +1,50 @@
+spring:
+  sql.init:
+    mode: ALWAYS
+    schema-locations: classpath:schema-postgres.sql
+  jackson:
+    serialization.INDENT_OUTPUT: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:6541/ewm-requests?currentSchema=request_service
+    username: dbuser
+    password: 12345
+  jpa:
+    generate-ddl: false
+    hibernate.ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 3000
+            loggerLevel: basic
+      circuitbreaker:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 3
+        slow-call-duration-threshold: 3s
+        slow-call-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        ignore-exceptions:
+          - ru.practicum.aggregation.error.exception.bussines.ServiceProcessingException
+          - jakarta.validation.ValidationException
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+
