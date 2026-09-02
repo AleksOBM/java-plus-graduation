@@ -11,9 +11,9 @@ import ru.practicum.aggregation.client.request.RequestClient;
 import ru.practicum.aggregation.dto.participation.come.EventRequestStatusUpdateRequest;
 import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdateResult;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
-import ru.practicum.aggregation.error.exception.unavailable.RequestServiceUnavailableException;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -32,7 +32,7 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				eventIds: {}""", eventIds);
 		return switch (RemoteCallExecutor.execute(() ->
 				requestClient.getConfirmedRequestsCount(eventIds))) {
-			case RemoteCallResult.Success(var response) -> response;
+			case RemoteCallResult.Success(var eventRequestCounts) -> eventRequestCounts;
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
@@ -44,8 +44,15 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				log.warn("""
 						Деградация
 						Не удалось получить количество подтвержденных заявок на участие в событиях
-						eventIds: {}""", eventIds);
-				throw new RequestServiceUnavailableException(cause);
+						eventIds: {}""", eventIds, cause);
+
+				yield eventIds.stream()
+						.map(id -> EventRequestCount.builder()
+								.eventId(id)
+								.count(0L)
+								.build()
+						)
+						.toList();
 			}
 		};
 	}
@@ -57,7 +64,7 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				Система ищет запрос на участие пользователя с id={} в событии с id={}""", userId, eventId);
 		return switch (RemoteCallExecutor.execute(() -> requestClient
 				.findByUserIdAndEventId(userId, eventId))) {
-			case RemoteCallResult.Success(var response) -> response;
+			case RemoteCallResult.Success(var participationRequestDtos) -> participationRequestDtos;
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
@@ -69,8 +76,9 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				log.warn("""
 						Деградация
 						Пользователю с id={}
-						Не удалось получить запросы на участие в событии с id={}""", userId, eventId);
-				throw new RequestServiceUnavailableException(cause);
+						Не удалось получить запросы на участие в событии с id={}""", userId, eventId, cause);
+
+				yield Collections.emptyList();
 			}
 		};
 	}
@@ -86,7 +94,7 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				{}""", eventId, request);
 		return switch (RemoteCallExecutor.execute(() ->
 				requestClient.updateStatusRequest(eventId, participantLimit, requestModeration, request))) {
-			case RemoteCallResult.Success(var response) -> response;
+			case RemoteCallResult.Success(var updateResult) -> updateResult;
 			case RemoteCallResult.Failure(var exeption) -> {
 				log.warn("""
 						Бизнес-исключение
@@ -98,8 +106,12 @@ public class RequestFeignRepositoryImpl implements RequestFeignRepository {
 				log.warn("""
 						Деградация
 						Не удалось обновить статус запросов на участие в событии с id={}
-						{}""", eventId, request);
-				throw new RequestServiceUnavailableException(cause);
+						{}""", eventId, request, cause);
+
+				yield EventRequestStatusUpdateResult.builder()
+						.confirmedRequests(Collections.emptyList())
+						.rejectedRequests(Collections.emptyList())
+						.build();
 			}
 		};
 	}
