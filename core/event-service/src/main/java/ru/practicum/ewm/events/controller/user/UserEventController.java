@@ -60,8 +60,8 @@ public class UserEventController {
 		return eventService.findByUserId(userId, from, size);
 	}
 
-	@GetMapping(value = "/{eventId}", headers = "X-EWM-USER-ID")
-	public EventFullDto findEventById(@RequestHeader("X-EWM-USER-ID") @Positive Long userId,
+	@GetMapping(value = "/{eventId}")
+	public EventFullDto findEventById(@PathVariable @Positive Long userId,
 	                                  @PathVariable @Positive Long eventId,
 	                                  @NonNull HttpServletRequest request) {
 		log.info("""
