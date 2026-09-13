@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
  * {@link UserShortDto} initiator<br/>
  * <code>boolean</code> paid<br/>
  * {@link String} title<br/>
- * <code>long</code> views<br/>
- * <code>long</code> rate
+ * <code>double</code> rateing
  */
 @Builder
 public record EventShortDto(
@@ -29,7 +28,6 @@ public record EventShortDto(
 		UserShortDto initiator,
 		boolean paid,
 		String title,
-		long views,
-		long rate
+		double rating
 ) {
 }

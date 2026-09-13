@@ -103,8 +103,4 @@ public class Event extends BaseEntity {
 	/// В каких компиляциях состоит событие
 	@ManyToMany(mappedBy = "events")
 	List<Compilation> compilations;
-
-	/// Рейтинг события, вычисляемый как количество лайков и дизлайков
-	@Column(nullable = false)
-	private long rate;
 }

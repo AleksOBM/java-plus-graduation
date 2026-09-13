@@ -17,15 +17,14 @@ import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException
 import ru.practicum.aggregation.model.entity.BaseEntity;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.RequestFeignRepository;
-import ru.practicum.aggregation.repository.StatsFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepository;
 import ru.practicum.ewm.events.entity.Compilation;
 import ru.practicum.ewm.events.entity.Event;
 import ru.practicum.ewm.events.mapper.CompilationMapper;
 import ru.practicum.ewm.events.repository.CompilationRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
-import ru.practicum.aggregation.model.data.StatsRequestData;
-import ru.practicum.stat.dto.ViewStatsDto;
+import ru.practicum.stats.client.dto.ActionsWeightsSum;
+import ru.practicum.stats.client.grpc.AnalyzerClient;
 
 import java.util.*;
 import java.util.function.Function;
@@ -39,18 +38,16 @@ public class CompilationServiceImpl implements CompilationService {
 	EventRepository eventRepository;
 	CompilationRepository compilationRepository;
 
-	StatsFeignRepository statsFeignRepository;
-
 	UserFeignRepository userFeignRepository;
 	RequestFeignRepository requestFeignRepository;
 
+	AnalyzerClient analyzerClient;
+
 	@Override
 	public CompilationDto getById(Long compilationId, HttpServletRequest request) {
-		statsFeignRepository.sendHitRequest(request);
-
 		var compilation = getCompilationById(compilationId);
 		var confirmedRequests = getConfirmedRequests(List.of(compilation));
-		var views = getViews(List.of(compilation));
+		var views = getRatingMap(List.of(compilation));
 		var events = compilation.getEvents();
 		var eventIdToInitiator = eventIdToInitiatorMap(events);
 
@@ -80,13 +77,13 @@ public class CompilationServiceImpl implements CompilationService {
 		Map<Long, Long> confirmedRequests = new HashMap<>();
 		savedCompilation.getEvents().forEach(event -> confirmedRequests.put(event.getId(), 0L));
 
-		Map<Long, Long> views = new HashMap<>();
-		savedCompilation.getEvents().forEach(event -> views.put(event.getId(), 0L));
+		Map<Long, Double> ratings = new HashMap<>();
+		savedCompilation.getEvents().forEach(event -> ratings.put(event.getId(), 0.0));
 
 		var eventIdToInitiator = eventIdToInitiatorMap(events);
 
 		return CompilationMapper.toCompilationDto(
-				savedCompilation, eventIdToInitiator, confirmedRequests, views);
+				savedCompilation, eventIdToInitiator, confirmedRequests, ratings);
 	}
 
 	@Override
@@ -115,13 +112,13 @@ public class CompilationServiceImpl implements CompilationService {
 		}
 
 		var confirmedRequests = getConfirmedRequests(List.of(compilationInDb));
-		var views = getViews(List.of(compilationInDb));
+		var ratings = getRatingMap(List.of(compilationInDb));
 		var compilation = getCompilationById(compilationId);
 		var events = compilation.getEvents();
 		var eventIdToInitiator = eventIdToInitiatorMap(events);
 
 		return CompilationMapper.toCompilationDto(
-				compilationInDb, eventIdToInitiator, confirmedRequests, views);
+				compilationInDb, eventIdToInitiator, confirmedRequests, ratings);
 	}
 
 	@NonNull
@@ -157,7 +154,7 @@ public class CompilationServiceImpl implements CompilationService {
 		}
 
 		Map<Long, Long> allConfirmedRequests = getConfirmedRequests(compilations);
-		Map<Long, Long> allViews = getViews(compilations);
+		Map<Long, Double> allRatings = getRatingMap(compilations);
 
 		var result = new ArrayList<CompilationDto>();
 		for (Compilation compilation : compilations) {
@@ -166,7 +163,7 @@ public class CompilationServiceImpl implements CompilationService {
 			var eventIdToInitiator = eventIdToInitiatorMap(events);
 
 			result.add(CompilationMapper.toCompilationDto(
-					compilation, eventIdToInitiator, allConfirmedRequests, allViews));
+					compilation, eventIdToInitiator, allConfirmedRequests, allRatings));
 		}
 
 		return result;
@@ -200,36 +197,28 @@ public class CompilationServiceImpl implements CompilationService {
 				);
 	}
 
-	/// Map<eventId, views>
+	/// Map<eventId, rating>
 	@NonNull
-	private Map<Long, Long> getViews(@NonNull Collection<Compilation> compilations) {
+	private Map<Long, Double> getRatingMap(@NonNull Collection<Compilation> compilations) {
 
 		// Все уникальные события
-		List<Event> allEvents = compilations.stream()
+		List<Event> events = compilations.stream()
 				.flatMap(c -> c.getEvents().stream())
 				.distinct()
 				.toList();
 
-		if (allEvents.isEmpty()) return Collections.emptyMap();
+		if (events.isEmpty()) return Collections.emptyMap();
 
-		// Все URIs
-		List<String> uris = allEvents.stream().map(e -> "/events/" + e.getId()).toList();
+		return getRatingMap(events.stream().map(Event::getId).toList());
+	}
 
-		var statsOptional = statsFeignRepository.getStatList(
-				StatsRequestData.builder()
-						.uris(uris)
-						.unique(false)
-						.build()
-		);
+	private Map<Long, Double> getRatingMap(@NonNull List<Long> eventIds) {
+		if (eventIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
 
-		//  Map<eventId, hits>
-		return statsOptional.map(viewStatsDtos -> viewStatsDtos.stream()
-				.collect(Collectors.toMap(statsDto ->
-								Long.parseLong(statsDto.getUri().replace("/events/", "")),
-						ViewStatsDto::getHits,
-						(a, b) -> a
-				))
-		).orElse(Collections.emptyMap());
+		return analyzerClient.getInteractionsCount(eventIds).stream()
+				.collect(Collectors.toMap(ActionsWeightsSum::eventId, ActionsWeightsSum::score));
 	}
 
 }

@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
  * <code>boolean requestModeration</code><br/>
  * <code>EventState state</code><br/>
  * <code>String title</code><br/>
- * <code>Long views</code><br/>
- * <code>long rate</code>
+ * <code>double rating</code>
  */
 @Builder
 public record EventFullDto(
@@ -68,8 +67,6 @@ public record EventFullDto(
 		@NotBlank
 		String title,
 
-		Long views,
-
-		long rate
+		double rating
 ) {
 }

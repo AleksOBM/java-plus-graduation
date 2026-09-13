@@ -27,10 +27,8 @@ import ru.practicum.aggregation.error.exception.bussines.cause.ConflictException
 import ru.practicum.aggregation.error.exception.bussines.cause.NotFoundException;
 import ru.practicum.aggregation.model.data.AdminGetData;
 import ru.practicum.aggregation.model.data.FreeGetData;
-import ru.practicum.aggregation.model.data.StatsRequestData;
 import ru.practicum.aggregation.model.repository.EventRequestCount;
 import ru.practicum.aggregation.repository.RequestFeignRepositoryImpl;
-import ru.practicum.aggregation.repository.StatsFeignRepository;
 import ru.practicum.aggregation.repository.UserFeignRepositoryImpl;
 import ru.practicum.ewm.events.entity.Category;
 import ru.practicum.ewm.events.entity.Event;
@@ -42,7 +40,9 @@ import ru.practicum.ewm.events.repository.CategoryRepository;
 import ru.practicum.ewm.events.repository.EventRepository;
 import ru.practicum.ewm.events.specification.EventSpecifications;
 import ru.practicum.ewm.events.specification.SpecBuilder;
-import ru.practicum.stat.dto.ViewStatsDto;
+import ru.practicum.stats.client.dto.ActionsWeightsSum;
+import ru.practicum.stats.client.dto.PredictedScore;
+import ru.practicum.stats.client.grpc.AnalyzerClient;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -50,7 +50,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,14 +58,14 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventServiceImpl implements EventService {
 
-	StatsFeignRepository statsFeignRepository;
 	EventRepository eventRepository;
 	CategoryRepository categoryRepository;
 
 	UserFeignRepositoryImpl userFeignRepository;
 	RequestFeignRepositoryImpl requestFeignRepository;
 
-	private static final String EVENTS_PATH = "/events/";
+	AnalyzerClient analyzerClient;
+
 	private static final int HOURS_BEFORE_START = 2;
 
 	@Override
@@ -109,7 +108,7 @@ public class EventServiceImpl implements EventService {
 		if (dto.sort() != null) {
 			switch (dto.sort()) {
 				case EVENT_DATE -> sort = Sort.by("eventDate").ascending();
-				case VIEWS -> sort = Sort.by("views").descending();
+				case VIEWS -> sort = Sort.by("rating").descending();
 			}
 		}
 
@@ -122,33 +121,19 @@ public class EventServiceImpl implements EventService {
 
 		var confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
-
-		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
-
-		var statsData = StatsRequestData.builder()
-				.uris(getUris(events))
-				.start(dto.rangeStart())
-				.end(dto.rangeEnd())
-				.unique(false)
-				.build();
-
-		var statsOptional = statsFeignRepository.getStatList(statsData);
-
-		Map<Long, UserShortDto> userIdToInitiator = getUserShortDtoMap(events);
+		var eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
+		var eventIdToRating = getRatingMap(events.stream().map(Event::getId).toList());
+		var userIdToInitiator = getUserShortDtoMap(events);
 
 		return events.stream()
 				.map(event -> {
 					var userId = event.getInitiatorId();
 					var confirmets = eventIdToRequestCount.getOrDefault(userId, 0L);
-					AtomicLong views = new AtomicLong();
-					statsOptional.ifPresentOrElse(stats ->
-									views.set(getViewsFromStatsList(stats, event.getId())),
-							() -> views.set(1L)
-					);
+					double rating = eventIdToRating.getOrDefault(event.getId(), 0.0);
 					var eventData = EventData.builder()
 							.initiator(userIdToInitiator.get(userId))
 							.confirmedRequests(confirmets)
-							.views(views.get())
+							.rating(rating)
 							.build();
 					return EventMapper.toEventShortDto(event, eventData);
 				})
@@ -161,27 +146,13 @@ public class EventServiceImpl implements EventService {
 
 		var event = getEventById(eventId);
 		var initiator = UserMapper.toUserShortDto(getUserById(event.getInitiatorId()));
-		var uris = List.of(request.getRequestURI());
-		var statsOptional = statsFeignRepository.getStatList(
-				StatsRequestData.builder()
-						.uris(uris)
-						.unique(true)
-						.build()
-		);
-
-		long views = statsOptional.map(viewStatsDtos -> viewStatsDtos.stream()
-						.findFirst()
-						.map(ViewStatsDto::getHits)
-						.orElse(0L)
-				)
-				.orElse(1L);
-
+		var rating = getRating(eventId);
 		var confirmedRequestsCount = getConfirmedRequestsCountByEventId(eventId);
 
 		var eventData = EventData.builder()
 				.initiator(initiator)
 				.confirmedRequests(confirmedRequestsCount)
-				.views(views)
+				.rating(rating)
 				.build();
 
 		return EventMapper.toEventFullDto(event, eventData);
@@ -218,7 +189,7 @@ public class EventServiceImpl implements EventService {
 		var eventData = EventData.builder()
 				.initiator(initiator)
 				.confirmedRequests(0)
-				.views(0)
+				.rating(0)
 				.build();
 
 		return EventMapper.toEventFullDto(event, eventData);
@@ -252,16 +223,9 @@ public class EventServiceImpl implements EventService {
 		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
 
-		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
+		var eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
-		var statsData = StatsRequestData.builder()
-				.uris(getUris(events))
-				.start(dto.rangeStart())
-				.end(dto.rangeEnd())
-				.unique(false)
-				.build();
-
-		var statsOptional = statsFeignRepository.getStatList(statsData);
+		var eventIdToRating = getRatingMap(events.stream().map(Event::getId).toList());
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
 
@@ -269,15 +233,11 @@ public class EventServiceImpl implements EventService {
 				.map(event -> {
 					var userId = event.getInitiatorId();
 					var count = getConfirmedRequestsCountFromMap(eventIdToRequestCount, event.getId());
-					AtomicLong views = new AtomicLong();
-					statsOptional.ifPresentOrElse(stats ->
-									views.set(getViewsFromStatsList(stats, event.getId())),
-							() -> views.set(1L)
-					);
+					double rating = eventIdToRating.getOrDefault(event.getId(), 0.0);
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
 							.confirmedRequests(count)
-							.views(views.get())
+							.rating(rating)
 							.build();
 					return EventMapper.toEventFullDto(event, eventData);
 				})
@@ -358,30 +318,20 @@ public class EventServiceImpl implements EventService {
 		List<EventRequestCount> confirmedRequestsCounts = fetchConfirmedRequestsCount(
 				events.stream().map(Event::getId).toList());
 
-		Map<Long, Long> eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
+		var eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
 
-		List<String> uris = getUris(events);
-		var statsOptional = statsFeignRepository.getStatList(
-				StatsRequestData.builder()
-						.uris(uris)
-						.unique(true)
-						.build()
-		);
+		var eventIdToRating = getRatingMap(events.stream().map(Event::getId).toList());
 
 		Map<Long, UserShortDto> initiators = getUserShortDtoMap(events);
 
 		return events.stream()
 				.map(event -> {
 					var count = getConfirmedRequestsCountFromMap(eventIdToRequestCount, event.getId());
-					AtomicLong views = new AtomicLong();
-					statsOptional.ifPresentOrElse(stats ->
-									views.set(getViewsFromStatsList(stats, event.getId())),
-							() -> views.set(1L)
-					);
+					double rating = eventIdToRating.getOrDefault(event.getId(), 0.0);
 					var eventData = EventData.builder()
 							.initiator(initiators.get(userId))
 							.confirmedRequests(count)
-							.views(views.get())
+							.rating(rating)
 							.build();
 					return EventMapper.toEventShortDto(event, eventData);
 				})
@@ -408,7 +358,7 @@ public class EventServiceImpl implements EventService {
 		var eventData = EventData.builder()
 				.initiator(UserMapper.toUserShortDto(getUserById(event.getInitiatorId())))
 				.confirmedRequests(confirmets)
-				.views(getViews(event.getId()))
+				.rating(getRating(eventId))
 				.build();
 
 		return EventMapper.toEventFullDto(event, eventData);
@@ -423,6 +373,42 @@ public class EventServiceImpl implements EventService {
 
 		userFeignRepository.checkUser(userId);
 		return patchEvent(eventId, request, false);
+	}
+
+	@Override
+	public List<EventShortDto> getRecommendationsForUser(long userId, int maxResults) {
+
+		// Получаем предсказания
+		List<PredictedScore> predicteds = analyzerClient.getRecomendationsForUser(userId, maxResults);
+		if (predicteds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		var eventIds = predicteds.stream()
+				.map(PredictedScore::eventId)
+				.toList();
+
+		var events = eventRepository.findAllById(eventIds);
+
+		var confirmedRequestsCounts = fetchConfirmedRequestsCount(
+				events.stream().map(Event::getId).toList());
+		var eventIdToRequestCount = getRequestCountMap(confirmedRequestsCounts);
+		var eventIdToRating = getRatingMap(events.stream().map(Event::getId).toList());
+		var userIdToInitiator = getUserShortDtoMap(events);
+
+		return events.stream()
+				.map(event -> {
+					var currentUserId = event.getInitiatorId();
+					var confirmets = eventIdToRequestCount.getOrDefault(currentUserId, 0L);
+					double rating = eventIdToRating.getOrDefault(event.getId(), 0.0);
+					var eventData = EventData.builder()
+							.initiator(userIdToInitiator.get(currentUserId))
+							.confirmedRequests(confirmets)
+							.rating(rating)
+							.build();
+					return EventMapper.toEventShortDto(event, eventData);
+				})
+				.toList();
 	}
 
 	@Override
@@ -503,11 +489,6 @@ public class EventServiceImpl implements EventService {
 		return requestFeignRepository.getConfirmedRequestsCount(events);
 	}
 
-	@NonNull
-	private List<String> getUris(@NonNull List<Event> events) {
-		return events.stream().map(event -> EVENTS_PATH + event.getId()).toList();
-	}
-
 	private Map<Long, Long> getRequestCountMap(@NonNull List<EventRequestCount> eventRequestCountList) {
 		return eventRequestCountList.stream()
 				.collect(Collectors.toMap(EventRequestCount::eventId, EventRequestCount::count,
@@ -526,8 +507,16 @@ public class EventServiceImpl implements EventService {
 		return EventData.builder()
 				.initiator(UserMapper.toUserShortDto(getUserById(initiatorId)))
 				.confirmedRequests(getConfirmedRequestsCountByEventId(eventId))
-				.views(getViews(eventId))
+				.rating(getRating(eventId))
 				.build();
+	}
+
+	private double getRating(long eventId) {
+		return analyzerClient.getInteractionsCount(
+						List.of(eventId)).stream()
+				.map(ActionsWeightsSum::score)
+				.findAny()
+				.orElse(0.0);
 	}
 
 	@NonNull
@@ -558,27 +547,6 @@ public class EventServiceImpl implements EventService {
 		return counts.getFirst().count();
 	}
 
-	private long getViews(long eventId) {
-		var uris = List.of(EVENTS_PATH + eventId);
-		var statsOptional = statsFeignRepository.getStatList(
-				StatsRequestData.builder()
-						.uris(uris)
-						.unique(true)
-						.build()
-		);
-
-		if (statsOptional.isEmpty()) {
-			return 1;
-		}
-
-		List<ViewStatsDto> stats = statsOptional.get();
-
-		if (stats.isEmpty()) {
-			return 0;
-		}
-		return stats.getFirst().getHits();
-	}
-
 	private long getConfirmedRequestsCountFromMap(@NonNull
 	                                              Map<Long, Long> requestCountMap,
 	                                              long eventId) {
@@ -591,12 +559,13 @@ public class EventServiceImpl implements EventService {
 		return 0;
 	}
 
-	private long getViewsFromStatsList(@NonNull List<ViewStatsDto> viewStatsMap, long eventId) {
-		return viewStatsMap.stream()
-				.filter(statsDto -> statsDto.getUri().equals(EVENTS_PATH + eventId))
-				.map(ViewStatsDto::getHits)
-				.findAny()
-				.orElse(0L);
+	private Map<Long, Double> getRatingMap(@NonNull List<Long> eventIds) {
+		if (eventIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		return analyzerClient.getInteractionsCount(eventIds).stream()
+				.collect(Collectors.toMap(ActionsWeightsSum::eventId, ActionsWeightsSum::score));
 	}
 
 }

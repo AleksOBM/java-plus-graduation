@@ -1,0 +1,24 @@
+grpc:
+  server:
+    port: 0
+
+kafka:
+  bootstrap-server: localhost:9092
+  topics:
+    users-interaction: stats.user-actions.v1
+    events-similarity: stats.events-similarity.v1
+
+  user-action-consumer-config:
+    "bootstrap.servers": ${kafka.bootstrap-server}
+    "group.id": "user-action.group"
+    "key.deserializer": "org.apache.kafka.common.serialization.LongDeserializer"
+    "value.deserializer": "ru.practicum.ewm.kafka.deserializer.UserActionsDeserializer"
+    "auto.offset.reset": "earliest"
+    "enable.auto.commit": false
+    "max.poll.records": 10
+    "fetch.max.wait.ms": 1000
+
+  events-similarity-producer-config:
+    "bootstrap.servers": ${kafka.bootstrap-server}
+    "key.serializer": "org.apache.kafka.common.serialization.LongSerializer"
+    "value.serializer": "ru.practicum.ewm.kafka.serializer.GeneralAvroSerializer"

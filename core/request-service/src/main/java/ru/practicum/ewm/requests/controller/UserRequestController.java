@@ -2,23 +2,31 @@ package ru.practicum.ewm.requests.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.requests.service.RequestService;
+import ru.practicum.stats.client.dto.ActionType;
+import ru.practicum.stats.client.dto.UserActionDto;
+import ru.practicum.stats.client.grpc.CollectorClient;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/users/{userId}/requests")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserRequestController {
 
-	private final RequestService requestService;
+	RequestService requestService;
+	CollectorClient collectorClient;
 
 	/**
 	 * В случае, если по заданным фильтрам не найдено ни одной заявки, возвращает пустой список
@@ -58,7 +66,18 @@ public class UserRequestController {
 				Добавление запроса от текущего пользователя на участие в событии
 				{} {}""", request.getMethod(), request.getRequestURI());
 
-		return requestService.addParticipationRequest(userId, eventId);
+		var result = requestService.addParticipationRequest(userId, eventId);
+
+		log.info("Регистрация на участие в событии {} пользователеля {}", eventId, userId);
+		collectorClient.collectUserAction(
+				UserActionDto.builder()
+						.userId(userId)
+						.eventId(eventId)
+						.actionType(ActionType.REGISTER)
+						.timestamp(LocalDateTime.now())
+						.build());
+
+		return result;
 	}
 
 	@PatchMapping("/{requestId}/cancel")

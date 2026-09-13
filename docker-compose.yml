@@ -1,6 +1,10 @@
 volumes:
   postgres_main-db_data:
   postgres_stats-db_data:
+  kafka_data:
+  kafka_secrets:
+  kafka_init_data:
+  kafka_init_secrets:
 
 services:
   main-db:
@@ -13,7 +17,7 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
     volumes:
-      - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql:ro
+      - ./docker-init-core.sql:/docker-entrypoint-initdb.d/docker-init-core.sql:ro
       - postgres_main-db_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U dbuser -d ewm-main" ]
@@ -31,9 +35,43 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
     volumes:
+      - ./docker-init-stats.sql:/docker-entrypoint-initdb.d/docker-init-stats.sql:ro
       - postgres_stats-db_data:/var/lib/postgresql/data
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
+
+  kafka:
+    image: confluentinc/confluent-local:7.4.3
+    hostname: kafka
+    container_name: kafka
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - kafka_secrets:/etc/kafka/secrets
+    ports:
+      - "9092:9092" # for client connections
+      - "9101:9101" # JMX
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      CLUSTER_ID: 'K0EA9p0yEe6MkAAAAkKsEg'
+
+  kafka-init-topics:
+    image: confluentinc/confluent-local:7.4.3
+    container_name: kafka-init-topics
+    volumes:
+      - kafka_init_data:/var/lib/kafka/data
+      - kafka_init_secrets:/etc/kafka/secrets
+      - ./docker-init-topics.sh:/docker-init-topics.sh:ro
+    depends_on:
+      - kafka
+    command: ["bash", "/docker-init-topics.sh"]
+    init: true

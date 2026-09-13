@@ -1,0 +1,12 @@
+@namespace("ru.practicum.ewm.stats.avro")
+protocol EventProtocol {
+
+	/**
+	  * Информация о мероприятии
+	*/
+	record EventAvro {
+		long id;
+		long categoryId;
+	}
+
+}
