@@ -49,5 +49,7 @@ public interface EventService {
 	@Transactional
 	EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest request);
 
+	List<EventShortDto> getRecommendationsForUser(long userId, int maxResults);
+
 	long getInitiatorIfPublished(@Positive Long eventId);
 }

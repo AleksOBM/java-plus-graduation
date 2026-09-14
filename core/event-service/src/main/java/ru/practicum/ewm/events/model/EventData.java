@@ -5,14 +5,14 @@ import ru.practicum.aggregation.dto.user.output.UserShortDto;
 
 /**
  * @apiNote
- * <code>UserShortDto initiator</code> <br/>
- * <code>long confirmedRequests</code> <br/>
- * <code>long views</code>
+ * <code>UserShortDto</code> initiator <br/>
+ * <code>long</code> confirmedRequests <br/>
+ * <code>double</code> rating
  */
 @Builder
 public record EventData(
 		UserShortDto initiator,
 		long confirmedRequests,
-		long views
+		double rating
 ) {
 }

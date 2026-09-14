@@ -7,7 +7,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import ru.practicum.aggregation.client.event.EventClient;
 import ru.practicum.aggregation.client.request.RequestClient;
-import ru.practicum.aggregation.client.stats.StatsClient;
 import ru.practicum.aggregation.client.user.UserClient;
 import ru.practicum.aggregation.config.JacksonConfiguration;
 
@@ -15,8 +14,7 @@ import ru.practicum.aggregation.config.JacksonConfiguration;
 @EnableFeignClients(clients = {
 		UserClient.class,
 		EventClient.class,
-		RequestClient.class,
-		StatsClient.class
+		RequestClient.class
 })
 @ComponentScan(value = {
 		"ru.practicum.ewm.users",

@@ -5,8 +5,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,23 +21,29 @@ import ru.practicum.aggregation.dto.participation.output.EventRequestStatusUpdat
 import ru.practicum.aggregation.dto.participation.output.ParticipationRequestDto;
 import ru.practicum.ewm.events.service.event.EventService;
 import ru.practicum.ewm.events.service.request.EventRequestService;
+import ru.practicum.stats.client.dto.ActionType;
+import ru.practicum.stats.client.dto.UserActionDto;
+import ru.practicum.stats.client.grpc.CollectorClient;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/users/{userId}/events")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserEventController {
 
-	private final EventService eventService;
-	private final EventRequestService eventRequestService;
+	EventService eventService;
+	EventRequestService eventRequestService;
+	CollectorClient collectorClient;
 
 	/**
-	 * @param from   количество элементов, которые нужно пропустить для формирования текущего набора</br>
-	 *               Default value : 0
-	 * @param size   количество элементов в наборе</br>
-	 *               Default value : 10
+	 * @param from количество элементов, которые нужно пропустить для формирования текущего набора</br>
+	 *             Default value : 0
+	 * @param size количество элементов в наборе</br>
+	 *             Default value : 10
 	 */
 	@GetMapping
 	public List<EventShortDto> findEventsByUserId(
@@ -52,7 +60,7 @@ public class UserEventController {
 		return eventService.findByUserId(userId, from, size);
 	}
 
-	@GetMapping("/{eventId}")
+	@GetMapping(value = "/{eventId}")
 	public EventFullDto findEventById(@PathVariable @Positive Long userId,
 	                                  @PathVariable @Positive Long eventId,
 	                                  @NonNull HttpServletRequest request) {
@@ -60,7 +68,19 @@ public class UserEventController {
 				ENDPOINT
 				Получение полной информации о событии добавленном текущим пользователем
 				{} {}""", request.getMethod(), request.getRequestURI());
-		return eventService.findEventByUserIdAndEventId(userId, eventId);
+
+		var result = eventService.findEventByUserIdAndEventId(userId, eventId);
+
+		log.info("Регистрация просмотра события {} пользователем {}", eventId, userId);
+		collectorClient.collectUserAction(
+				UserActionDto.builder()
+						.userId(userId)
+						.eventId(eventId)
+						.actionType(ActionType.VIEWS)
+						.timestamp(LocalDateTime.now())
+						.build());
+
+		return result;
 	}
 
 	/**

@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS events (
     title varchar(120) NOT NULL,
     category_id bigint,
     initiator_id bigint,
-    rate bigint NOT NULL DEFAULT 0,
     CONSTRAINT pk_events PRIMARY KEY (id),
     CONSTRAINT fk_events_categories FOREIGN KEY (category_id)
         REFERENCES categories (id) MATCH SIMPLE

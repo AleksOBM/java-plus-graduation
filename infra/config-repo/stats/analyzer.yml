@@ -1,0 +1,51 @@
+grpc:
+  server:
+    port: 0
+
+spring:
+  sql.init:
+    mode: ALWAYS
+    schema-locations: classpath:schema-postgres.sql
+  jackson:
+    serialization.INDENT_OUTPUT: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:6542/ewm-analyzer?currentSchema=analyzer
+    username: dbuser
+    password: 12345
+  jpa:
+    generate-ddl: false
+    hibernate.ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          fetch_size: 100
+          batch_size: 100
+
+kafka:
+  bootstrap-server: localhost:9092
+  topics:
+    users-interaction: stats.user-actions.v1
+    events-similarity: stats.events-similarity.v1
+
+  users-interaction-consumer-config:
+    "bootstrap.servers": ${kafka.bootstrap-server}
+    "group.id": "users-interaction.group"
+    "key.deserializer": "org.apache.kafka.common.serialization.LongDeserializer"
+    "value.deserializer": "ru.practicum.ewm.kafka.deserializer.UserActionsDeserializer"
+    "auto.offset.reset": "earliest"
+    "enable.auto.commit": false
+    "max.poll.records": 10
+    "fetch.max.wait.ms": 1000
+
+  events-similarity-consumer-config:
+    "bootstrap.servers": ${kafka.bootstrap-server}
+    "group.id": "events-similarity.group"
+    "key.deserializer": "org.apache.kafka.common.serialization.LongDeserializer"
+    "value.deserializer": "ru.practicum.ewm.kafka.deserializer.EventsSimilarityDeserializer"
+    "auto.offset.reset": "earliest"
+    "enable.auto.commit": false
+    "max.poll.records": 10
+    "fetch.max.wait.ms": 1000

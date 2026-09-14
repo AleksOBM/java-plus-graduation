@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.aggregation.dto.event.output.EventFullDto;
 import ru.practicum.aggregation.dto.event.output.EventShortDto;
 import ru.practicum.aggregation.model.data.FreeGetData;
-import ru.practicum.aggregation.repository.StatsFeignRepository;
 import ru.practicum.ewm.events.service.event.EventService;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,6 @@ import java.util.List;
 public class FreeEventController {
 
 	EventService eventService;
-	StatsFeignRepository statsFeignRepository;
 
 	/**
 	 * Обратите внимание:<br/>
@@ -90,10 +88,7 @@ public class FreeEventController {
 				Получение событий с возможностью фильтрации
 				{} {}""", request.getMethod(), request.getRequestURI());
 
-		var result = eventService.getFreeEvents(freeGetData, request);
-		statsFeignRepository.sendHitRequest(request);
-
-		return result;
+		return eventService.getFreeEvents(freeGetData, request);
 	}
 
 	@GetMapping(value = "/{eventId}")
@@ -105,10 +100,7 @@ public class FreeEventController {
 				Получение подробной информации об опубликованном событии по его идентификатору.
 				{} {}""", request.getMethod(), request.getRequestURI());
 
-		var result = eventService.getFreeEventById(eventId, request);
-		statsFeignRepository.sendHitRequest(request);
-
-		return result;
+		return eventService.getFreeEventById(eventId, request);
 	}
 
 }
