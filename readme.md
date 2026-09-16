@@ -13,6 +13,8 @@
 
 ## Бэкэнд для сервиса поиска мероприятий
 
+**Учебный проект**
+
 ### Configuration
 configuration files location: infra/config-repo
 
@@ -71,6 +73,7 @@ configuration files location: infra/config-repo
 
 ### External API
 ```mermaid
+%%{init: { 'mindmap': { 'maxNodeWidth': 500 } }}%%
 mindmap
   root((API))
     admin
@@ -120,6 +123,7 @@ mindmap
 
 ### Internal API
 ```mermaid
+%%{init: { 'mindmap': { 'maxNodeWidth': 500 } }}%%
 mindmap
   root((API))
     system
