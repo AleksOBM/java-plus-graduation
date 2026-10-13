@@ -2,12 +2,14 @@
 
 ![Static Badge](https://img.shields.io/badge/Java-21-green)
 ![Static Badge](https://img.shields.io/badge/Spring_Boot-3.5.9-green)
-![Static Badge](https://img.shields.io/badge/Microservices-8A2BE2)
-![Static Badge](https://img.shields.io/badge/SpringCloud-538681)
-![Static Badge](https://img.shields.io/badge/Kafka-blue)
+![Static Badge](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/JPA--specification-5d7cc2)
-![Static Badge](https://img.shields.io/badge/PostgreSQL-16.1-blue)
-![Static Badge](https://img.shields.io/badge/docker_compose-blue)
+![Static Badge](https://img.shields.io/badge/gRPC-4e7a62)
+![Static Badge](https://img.shields.io/badge/SpringCloud-538681)
+![Static Badge](https://img.shields.io/badge/Kafka-aaabaf)
+![Static Badge](https://img.shields.io/badge/OpenFeign-72a664)
+![Static Badge](https://img.shields.io/badge/Microservices-8A2BE2)
+![Static Badge](https://img.shields.io/badge/Docker_Compose-blue)
 ![Static Badge](https://img.shields.io/badge/Maven-orange)
 
 
